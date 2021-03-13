@@ -11,6 +11,7 @@ import { StorageClient } from "../storage/storage-client";
 import { Env } from "../env";
 import { TracedWorkspaceDB, DBWithTracing } from "@gitpod/gitpod-db/lib/traced-db";
 import { TraceContext } from "@gitpod/gitpod-protocol/lib/util/tracing";
+import { status } from "grpc";
 
 @injectable()
 export class WorkspaceDeletionService {
@@ -87,19 +88,12 @@ export class WorkspaceDeletionService {
      * @param includeSnapshots 
      */
     protected async deleteWorkspaceStorage(ws: WorkspaceAndOwner, includeSnapshots: boolean): Promise<boolean> {
-        let prefix = `workspaces/${ws.id}`;
-
         try {
-            const bucketName = this.storageClient.bucketName(ws.ownerId);
-            if (includeSnapshots) {
-                await this.storageClient.deleteObjects(bucketName, prefix);
-            } else {
-                await this.storageClient.deleteObjects(bucketName, `${prefix}/full.tar`);
-                await this.storageClient.deleteObjects(bucketName, `${prefix}/trail-`);
-            }
+            await this.storageClient.deleteWorkspaceBackups(ws.ownerId, ws.id, includeSnapshots);
             return true;
-        } catch (err) {
-            if ('code' in err && err.code == 404) {
+        }
+        catch (err) {
+            if (err.code === status.NOT_FOUND) {
                 return false;
             } else {
                 throw err;
