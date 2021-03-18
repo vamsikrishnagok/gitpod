@@ -1,0 +1,10 @@
+{
+  "name": "the special name",
+  "url": "https://example.com/12354325",
+  "cert": "bXljZXJ0Cg==",
+  "hints": {
+    "perfereability": 2,
+    "cordoned": true,
+    "govern": true
+  }
+}
