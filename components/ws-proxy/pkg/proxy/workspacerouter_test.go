@@ -78,7 +78,7 @@ func TestWorkspaceRouter(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 			r := mux.NewRouter()
-			theiaRouter, portRouter, blobserveRouter := test.Router(r, &fakeWsInfoProvider{infos: test.Infos})
+			theiaRouter, portRouter, blobserveRouter, _ := test.Router(r, &fakeWsInfoProvider{infos: test.Infos})
 			var act Expectation
 			actRecorder := func(w http.ResponseWriter, req *http.Request) {
 				defer w.WriteHeader(200)

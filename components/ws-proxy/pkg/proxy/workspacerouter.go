@@ -36,19 +36,25 @@ const (
 	workspacePortRegex = "(?P<" + workspacePortIdentifier + ">[0-9]+)-"
 )
 
-// WorkspaceRouter is a function that configures subrouters (one for theia, one for the exposed ports) on the given router
+// WorkspaceRouter is a function that configures subrouters on the given router
 // which resolve workspace coordinates (ID, port?) from each request. The contract is to store those in the request's mux.Vars
 // with the keys workspacePortIdentifier and workspaceIDIdentifier
-type WorkspaceRouter func(r *mux.Router, wsInfoProvider WorkspaceInfoProvider) (theiaRouter *mux.Router, portRouter *mux.Router, blobserveRouter *mux.Router)
+type WorkspaceRouter func(r *mux.Router, wsInfoProvider WorkspaceInfoProvider) (
+	theiaRouter *mux.Router,
+	portRouter *mux.Router,
+	blobserveRouter *mux.Router,
+	wsManagerRouter *mux.Router,
+)
 
 // HostBasedRouter is a WorkspaceRouter that routes simply based on the "Host" header
 func HostBasedRouter(header, wsHostSuffix string) WorkspaceRouter {
-	return func(r *mux.Router, wsInfoProvider WorkspaceInfoProvider) (*mux.Router, *mux.Router, *mux.Router) {
+	return func(r *mux.Router, wsInfoProvider WorkspaceInfoProvider) (*mux.Router, *mux.Router, *mux.Router, *mux.Router) {
 		var (
 			getHostHeader   = func(req *http.Request) string { return req.Header.Get(header) }
 			blobserveRouter = r.MatcherFunc(matchBlobserveHostHeader(wsHostSuffix, getHostHeader)).Subrouter()
 			portRouter      = r.MatcherFunc(matchWorkspacePortHostHeader(wsHostSuffix, getHostHeader)).Subrouter()
 			theiaRouter     = r.MatcherFunc(matchWorkspaceHostHeader(wsHostSuffix, getHostHeader)).Subrouter()
+			wsManagerRouter = r.MatcherFunc(matchWSManagerHostHeader(wsHostSuffix, getHostHeader)).Subrouter()
 		)
 
 		r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
@@ -56,7 +62,7 @@ func HostBasedRouter(header, wsHostSuffix string) WorkspaceRouter {
 			log.Debugf("no match for path %s, host: %s", req.URL.Path, hostname)
 			w.WriteHeader(404)
 		})
-		return theiaRouter, portRouter, blobserveRouter
+		return theiaRouter, portRouter, blobserveRouter, wsManagerRouter
 	}
 }
 
@@ -128,6 +134,23 @@ func matchWorkspacePortHostHeader(wsHostSuffix string, headerProvider hostHeader
 
 func matchBlobserveHostHeader(wsHostSuffix string, headerProvider hostHeaderProvider) mux.MatcherFunc {
 	r := regexp.MustCompile("^blobserve" + wsHostSuffix)
+	return func(req *http.Request, m *mux.RouteMatch) bool {
+		hostname := headerProvider(req)
+		if hostname == "" {
+			return false
+		}
+
+		matches := r.FindStringSubmatch(hostname)
+		if len(matches) < 1 {
+			return false
+		}
+
+		return true
+	}
+}
+
+func matchWSManagerHostHeader(wsHostSuffix string, headerProvider hostHeaderProvider) mux.MatcherFunc {
+	r := regexp.MustCompile("^manager" + wsHostSuffix)
 	return func(req *http.Request, m *mux.RouteMatch) bool {
 		hostname := headerProvider(req)
 		if hostname == "" {

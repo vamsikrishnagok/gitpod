@@ -11,6 +11,7 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -216,7 +217,7 @@ func (ir *ideRoutes) HandleRoot(route *mux.Route) {
 
 const imagePathSeparator = "/__files__"
 
-// installBlobserveRoutes  implements long-lived caching with versioned URLs, see https://web.dev/http-cache/#versioned-urls
+// installBlobserveRoutes implements long-lived caching with versioned URLs, see https://web.dev/http-cache/#versioned-urls
 func installBlobserveRoutes(r *mux.Router, config *RouteHandlerConfig) {
 	r.Use(logHandler)
 	r.Use(handlers.CompressHandler)
@@ -241,6 +242,24 @@ func installBlobserveRoutes(r *mux.Router, config *RouteHandlerConfig) {
 		return &dst, nil
 	}
 	r.NewRoute().Handler(proxyPass(config, targetResolver, withLongTermCaching()))
+}
+
+// installWSManagerRoutes configures routing for the WS manager proxy
+func installWSManagerRoutes(r *mux.Router, config *RouteHandlerConfig) error {
+	r.Use(logWSManagerHandler())
+
+	remote, err := url.Parse("http://ws-manager:8080")
+	if err != nil {
+		return err
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(remote)
+
+	r.NewRoute().HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Host = r.URL.Host
+		proxy.ServeHTTP(w, r)
+	})
+	return nil
 }
 
 // installWorkspacePortRoutes configures routing for exposed ports
@@ -391,6 +410,15 @@ func logRouteHandlerHandler(routeHandlerName string) mux.MiddlewareFunc {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
 			getLog(req.Context()).WithField("routeHandler", routeHandlerName).Info("hit route handler")
+			h.ServeHTTP(resp, req)
+		})
+	}
+}
+
+func logWSManagerHandler() mux.MiddlewareFunc {
+	return func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
+			getLog(req.Context()).Info("hit ws manager proxy")
 			h.ServeHTTP(resp, req)
 		})
 	}
