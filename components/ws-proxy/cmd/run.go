@@ -5,12 +5,15 @@
 package cmd
 
 import (
+	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	tcpproxy "github.com/jpillora/go-tcp-proxy"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
@@ -93,6 +96,13 @@ var runCmd = &cobra.Command{
 			}()
 		}
 
+		go func() {
+			err := startWSManagerProxy(cfg.WorkspaceInfoProviderConfig.WsManagerAddr)
+			if err != nil {
+				log.WithError(err).Fatal("startWSManagerProxy failed")
+			}
+		}()
+
 		log.Info("🚪 ws-proxy is up and running")
 		sigChan := make(chan os.Signal, 1)
 		signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
@@ -107,4 +117,43 @@ var runCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(runCmd)
+}
+
+func startWSManagerProxy(remoteAddr string) error {
+
+	// TODO: gracefully shutdown, inspiration: https://gist.github.com/rcrowley/5474430
+
+	localAddr := ":8081" // TODO: config
+
+	laddr, err := net.ResolveTCPAddr("tcp", localAddr)
+	if err != nil {
+		return err
+	}
+	listener, err := net.ListenTCP("tcp", laddr)
+	if err != nil {
+		return err
+	}
+
+	connid := uint64(0)
+
+	for {
+		conn, err := listener.AcceptTCP()
+		if err != nil {
+			continue
+		}
+
+		connid++
+
+		raddr, err := net.ResolveTCPAddr("tcp", remoteAddr)
+		if err != nil {
+			return err
+		}
+		p := tcpproxy.New(conn, laddr, raddr)
+
+		p.Log = tcpproxy.ColorLogger{
+			Prefix: fmt.Sprintf("Connection #%03d – ", connid),
+		}
+
+		go p.Start()
+	}
 }
