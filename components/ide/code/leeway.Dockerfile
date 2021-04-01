@@ -37,8 +37,6 @@ RUN mkdir gp-code \
     && git remote add origin https://github.com/gitpod-io/vscode \
     && git fetch origin $GP_CODE_COMMIT \
     && git reset --hard FETCH_HEAD
-ARG OPENVSX_URL=https://open-vsx.org
-RUN sed -i "s+https://open-vsx.org+${OPENVSX_URL}+g" gp-code/product.json
 WORKDIR /gp-code
 RUN yarn
 RUN yarn gulp gitpod
@@ -67,3 +65,6 @@ ENV GITPOD_ENV_SET_VISUAL "$GITPOD_ENV_SET_EDITOR"
 ENV GITPOD_ENV_SET_GP_OPEN_EDITOR "$GITPOD_ENV_SET_EDITOR"
 ENV GITPOD_ENV_SET_GIT_EDITOR "$GITPOD_ENV_SET_EDITOR --wait"
 ENV GITPOD_ENV_SET_GP_PREVIEW_BROWSER "code --command gitpod.api.preview"
+
+# Allow to change the OpenVSX URL in startup.sh:
+COPY --from=code_installer --chown=33333:33333 /gp-code/product.json /ide/product.json

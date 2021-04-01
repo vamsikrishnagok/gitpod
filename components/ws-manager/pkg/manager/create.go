@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
+	"net/url"
 	"path/filepath"
 	"reflect"
 	"strconv"
@@ -25,6 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 
 	wsk8s "github.com/gitpod-io/gitpod/common-go/kubernetes"
+	"github.com/gitpod-io/gitpod/common-go/log"
 	"github.com/gitpod-io/gitpod/common-go/tracing"
 	regapi "github.com/gitpod-io/gitpod/registry-facade/api"
 	"github.com/gitpod-io/gitpod/ws-manager/api"
@@ -527,6 +529,20 @@ func (m *Manager) createWorkspaceEnvironment(startContext *startWorkspaceContext
 	result = append(result, corev1.EnvVar{Name: "THEIA_SUPERVISOR_ENDPOINT", Value: fmt.Sprintf(":%d", startContext.SupervisorPort)})
 	result = append(result, corev1.EnvVar{Name: "THEIA_WEBVIEW_EXTERNAL_ENDPOINT", Value: "webview-{{hostname}}"})
 	result = append(result, corev1.EnvVar{Name: "THEIA_MINI_BROWSER_HOST_PATTERN", Value: "browser-{{hostname}}"})
+
+	openVsxURL := "https://open-vsx.org"
+	if !strings.HasPrefix(m.Config.GitpodHostURL, "http") {
+		openVsxURL = fmt.Sprintf("open-vsx.%s", m.Config.GitpodHostURL)
+	} else {
+		gitpodHostURL, err := url.Parse(m.Config.GitpodHostURL)
+		if err != nil {
+			log.WithError(err).Warnf("cannot parse Gitpod host URL, using '%s' as OpenVSX URL as fallback", openVsxURL)
+		} else {
+			gitpodHostURL.Host = fmt.Sprintf("open-vsx.%s", gitpodHostURL.Host)
+			openVsxURL = gitpodHostURL.String()
+		}
+	}
+	result = append(result, corev1.EnvVar{Name: "OPENVSX_URL", Value: openVsxURL})
 
 	// We don't require that Git be configured for workspaces
 	if spec.Git != nil {

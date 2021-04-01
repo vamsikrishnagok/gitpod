@@ -116,6 +116,10 @@
                             "value": "browser-{{hostname}}"
                         },
                         {
+                            "name": "OPENVSX_URL",
+                            "value": "open-vsx.gitpod.io"
+                        },
+                        {
                             "name": "GITPOD_GIT_USER_NAME",
                             "value": "32leaves"
                         },

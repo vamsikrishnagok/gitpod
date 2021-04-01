@@ -30,5 +30,14 @@ export USER=gitpod
 [ -s /home/gitpod/.sdkman/bin/sdkman-init.sh ] && [ -z "$SDKMAN_VERSION" ] && source "/home/gitpod/.sdkman/bin/sdkman-init.sh"
 [ -s ~/.nvm/nvm-lazy.sh ] && source ~/.nvm/nvm-lazy.sh
 
+if [ ! -z "${OPENVSX_URL}" ]; then
+    tmpfile=$(mktemp)
+    sed "s+https://open-vsx.org+${OPENVSX_URL}+g" /ide/product.json > "$tmpfile"
+    cp "$tmpfile" /ide/product.json
+    rm "$tmpfile"
+else
+    echo "Using default OpenVSX URL."
+fi
+
 cd /ide
 exec /ide/node/bin/gitpod-node --inspect=0 ./out/gitpod.js $*
