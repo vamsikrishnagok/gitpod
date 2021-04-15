@@ -276,6 +276,7 @@ func (m *Monitor) actOnPodEvent(ctx context.Context, status *api.WorkspaceStatus
 	if status.Phase == api.WorkspacePhase_CREATING {
 		// The workspace has been scheduled on the cluster which means that we can start initializing it
 		go func() {
+
 			err := m.initializeWorkspaceContent(ctx, pod)
 
 			if err != nil {

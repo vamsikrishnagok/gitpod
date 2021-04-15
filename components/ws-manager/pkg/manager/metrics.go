@@ -23,16 +23,16 @@ func (m *Manager) RegisterMetrics(reg prometheus.Registerer) error {
 }
 
 const (
-	metricsNamespace          = "gitpod_ws_manager"
-	metricsWorkspaceSubsystem = "workspace"
+	metricsNamespace          = "gitpod"
+	metricsWorkspaceSubsystem = "ws_manager"
 )
 
 type metrics struct {
 	manager *Manager
 
-	startupTimeHistVec    *prometheus.HistogramVec
-	totalStartsCounterVec *prometheus.CounterVec
-	totalStopsCounterVec  *prometheus.CounterVec
+	workspaceStartupDuration     *prometheus.HistogramVec
+	workspaceInitilizingDuration *prometheus.HistogramVec
+	totalStopsCounterVec         *prometheus.CounterVec
 
 	mu         sync.Mutex
 	phaseState map[string]api.WorkspacePhase
@@ -42,19 +42,13 @@ func newMetrics(m *Manager) *metrics {
 	return &metrics{
 		manager:    m,
 		phaseState: make(map[string]api.WorkspacePhase),
-		startupTimeHistVec: prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		workspaceStartupDuration: prometheus.NewHistogramVec(prometheus.HistogramOpts{
 			Namespace: metricsNamespace,
 			Subsystem: metricsWorkspaceSubsystem,
-			Name:      "startup_seconds",
+			Name:      "workspace_startup_seconds",
 			Help:      "time it took for workspace pods to reach the running phase",
 			// same as components/ws-manager-bridge/src/prometheus-metrics-exporter.ts#L15
 			Buckets: prometheus.ExponentialBuckets(2, 2, 10),
-		}, []string{"type"}),
-		totalStartsCounterVec: prometheus.NewCounterVec(prometheus.CounterOpts{
-			Namespace: metricsNamespace,
-			Subsystem: metricsWorkspaceSubsystem,
-			Name:      "starts_total",
-			Help:      "total number of workspaces started",
 		}, []string{"type"}),
 		totalStopsCounterVec: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Namespace: metricsNamespace,
@@ -68,12 +62,11 @@ func newMetrics(m *Manager) *metrics {
 // Register registers all metrics ws-manager can export
 func (m *metrics) Register(reg prometheus.Registerer) error {
 	collectors := []prometheus.Collector{
-		m.startupTimeHistVec,
+		m.workspaceStartupDuration,
 		newPhaseTotalVec(m.manager),
 		newWorkspaceActivityVec(m.manager),
 		newTimeoutSettingsVec(m.manager),
 		newSubscriberQueueLevelVec(m.manager),
-		m.totalStartsCounterVec,
 		m.totalStopsCounterVec,
 	}
 	for _, c := range collectors {
@@ -84,17 +77,6 @@ func (m *metrics) Register(reg prometheus.Registerer) error {
 	}
 
 	return nil
-}
-
-func (m *metrics) OnWorkspaceStarted(tpe api.WorkspaceType) {
-	nme := api.WorkspaceType_name[int32(tpe)]
-	counter, err := m.totalStartsCounterVec.GetMetricWithLabelValues(nme)
-	if err != nil {
-		log.WithError(err).WithField("type", tpe).Warn("cannot get counter for workspace start metric")
-		return
-	}
-
-	counter.Inc()
 }
 
 func (m *metrics) OnChange(status *api.WorkspaceStatus) {
@@ -121,7 +103,7 @@ func (m *metrics) OnChange(status *api.WorkspaceStatus) {
 
 		t := status.Metadata.StartedAt.AsTime()
 		tpe := api.WorkspaceType_name[int32(status.Spec.Type)]
-		hist, err := m.startupTimeHistVec.GetMetricWithLabelValues(tpe)
+		hist, err := m.workspaceStartupDuration.GetMetricWithLabelValues(tpe)
 		if err != nil {
 			log.WithError(err).WithField("type", tpe).Warn("cannot get startup time histogram metric")
 			return
