@@ -218,6 +218,11 @@ export class ClusterStatus extends jspb.Message {
     getStatic(): boolean;
     setStatic(value: boolean): ClusterStatus;
 
+    hasAnnotations(): boolean;
+    clearAnnotations(): void;
+    getAnnotations(): Annotations | undefined;
+    setAnnotations(value?: Annotations): ClusterStatus;
+
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): ClusterStatus.AsObject;
     static toObject(includeInstance: boolean, msg: ClusterStatus): ClusterStatus.AsObject;
@@ -238,6 +243,7 @@ export namespace ClusterStatus {
         governed: boolean,
         admissionConstraintsList: Array<AdmissionConstraint.AsObject>,
         pb_static: boolean,
+        annotations?: Annotations.AsObject,
     }
 }
 
@@ -265,6 +271,11 @@ export class UpdateRequest extends jspb.Message {
     getAdmissionConstraints(): ModifyAdmissionConstraint | undefined;
     setAdmissionConstraints(value?: ModifyAdmissionConstraint): UpdateRequest;
 
+    hasAnnotations(): boolean;
+    clearAnnotations(): void;
+    getAnnotations(): Annotations | undefined;
+    setAnnotations(value?: Annotations): UpdateRequest;
+
     getPropertyCase(): UpdateRequest.PropertyCase;
 
     serializeBinary(): Uint8Array;
@@ -284,6 +295,7 @@ export namespace UpdateRequest {
         maxScore: number,
         cordoned: boolean,
         admissionConstraints?: ModifyAdmissionConstraint.AsObject,
+        annotations?: Annotations.AsObject,
     }
 
     export enum PropertyCase {
@@ -292,6 +304,7 @@ export namespace UpdateRequest {
         MAX_SCORE = 3,
         CORDONED = 4,
         ADMISSION_CONSTRAINTS = 5,
+        ANNOTATIONS = 6,
     }
 
 }
@@ -319,6 +332,44 @@ export namespace ModifyAdmissionConstraint {
     export type AsObject = {
         add: boolean,
         constraint?: AdmissionConstraint.AsObject,
+    }
+}
+
+export class Annotations extends jspb.Message {
+    getClusterName(): string;
+    setClusterName(value: string): Annotations;
+    getProjectName(): string;
+    setProjectName(value: string): Annotations;
+    getPodUrl(): string;
+    setPodUrl(value: string): Annotations;
+    getNodeUrl(): string;
+    setNodeUrl(value: string): Annotations;
+    getPodLogsUrl(): string;
+    setPodLogsUrl(value: string): Annotations;
+    getPodMetricsUrl(): string;
+    setPodMetricsUrl(value: string): Annotations;
+    getNodeMetricsUrl(): string;
+    setNodeMetricsUrl(value: string): Annotations;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): Annotations.AsObject;
+    static toObject(includeInstance: boolean, msg: Annotations): Annotations.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: Annotations, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): Annotations;
+    static deserializeBinaryFromReader(message: Annotations, reader: jspb.BinaryReader): Annotations;
+}
+
+export namespace Annotations {
+    export type AsObject = {
+        clusterName: string,
+        projectName: string,
+        podUrl: string,
+        nodeUrl: string,
+        podLogsUrl: string,
+        podMetricsUrl: string,
+        nodeMetricsUrl: string,
     }
 }
 
