@@ -183,6 +183,9 @@ export class ClusterService implements IClusterServiceServer {
                         }
                     }
                 }
+                if(call.request.hasAnnotations()) {
+                    cluster.annotations = req.annotations;
+                }
                 await this.clusterDB.save(cluster);
                 log.warn({}, "cluster updated", {cluster: req.name});
                 this.triggerReconcile("update", req.name);
