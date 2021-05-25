@@ -40,6 +40,8 @@ export interface GitpodClient {
 
 export const GitpodServer = Symbol('GitpodServer');
 export interface GitpodServer extends JsonRpcServer<GitpodClient>, AdminServer, LicenseService {
+    // Workspace cluster related api
+    // adminGetClusters(): Promise
     // User related API
     getLoggedInUser(): Promise<User>;
     getTerms(): Promise<Terms>;

@@ -64,6 +64,15 @@ data:
             "initProbe": {
                 "timeout": "1s"
             },
+            "deploymentInfo": {
+                "clusterName": "{{ .Values.clusterInfo.name }}",
+                "projectName": "{{ .Values.clusterInfo.projectName }}",
+                "podUrl": "{{ .Values.clusterInfo.podUrl }}",
+                "nodeUrl": "{{ .Values.clusterInfo.nodeUrl }}",
+                "podLogsUrl": "{{ .Values.clusterInfo.podLogsUrl }}",
+                "podMetricsUrl": "{{ .Values.clusterInfo.podMetricsUrl }}",
+                "nodeMetricsUrl": "{{ .Values.clusterInfo.nodeMetricsUrl }}"
+            },
             "urlTemplate":     "https://{{"{{ .Prefix }}"}}.ws{{- if $.Values.installation.shortname -}}-{{ $.Values.installation.shortname }}{{- end -}}.{{ $.Values.hostname }}",
             "portUrlTemplate": "https://{{"{{ .WorkspacePort }}"}}-{{"{{ .Prefix }}"}}.ws{{- if $.Values.installation.shortname -}}-{{ $.Values.installation.shortname }}{{- end -}}.{{ $.Values.hostname }}",
             "workspaceHostPath": "{{ .Values.components.wsDaemon.hostWorkspaceArea }}",

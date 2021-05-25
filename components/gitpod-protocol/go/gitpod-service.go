@@ -1700,6 +1700,11 @@ type WorkspaceInfo struct {
 	Workspace      *Workspace         `json:"workspace,omitempty"`
 }
 
+// WorkspaceInfo is the WorkspaceInfo message type
+type WorkspaceCluster struct {
+	WorkspaceCluster *WorkspaceCluster `json:"workspaceCluster,omitempty"`
+}
+
 // WorkspaceInstance is the WorkspaceInstance message type
 type WorkspaceInstance struct {
 	Configuration  *WorkspaceInstanceConfiguration `json:"configuration,omitempty"`

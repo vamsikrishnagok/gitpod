@@ -24,7 +24,7 @@ export class DBWorkspaceCluster implements WorkspaceCluster {
         transformer: (() => {
             const defaultValue = {};
             const jsonifiedDefault = JSON.stringify(defaultValue);
-            return <ValueTransformer> {
+            return <ValueTransformer>{
                 // tls | undefined => <tls> | "{}"
                 to(value: any): any {
                     if (!value) {
@@ -65,7 +65,7 @@ export class DBWorkspaceCluster implements WorkspaceCluster {
         transformer: (() => {
             const defaultValue: AdmissionConstraint[] = [];
             const jsonifiedDefault = JSON.stringify(defaultValue);
-            return <ValueTransformer> {
+            return <ValueTransformer>{
                 to(value: any): any {
                     if (!value) {
                         return jsonifiedDefault;
@@ -82,4 +82,29 @@ export class DBWorkspaceCluster implements WorkspaceCluster {
         })()
     })
     admissionConstraints?: AdmissionConstraint[];
+
+    @Column({
+        type: "simple-json",
+        transformer: (() => {
+            const defaultValue = {};
+            const jsonifiedDefault = JSON.stringify(defaultValue);
+            return <ValueTransformer>{
+                // annotations | undefined => <annotations> | "{}"
+                to(value: any): any {
+                    if (!value) {
+                        return jsonifiedDefault;
+                    }
+                    return JSON.stringify(value);
+                },
+                // <annotations> | "{}" => annotations | undefined
+                from(value: any): any {
+                    if (value === jsonifiedDefault) {
+                        return undefined;
+                    }
+                    return JSON.parse(value);
+                }
+            };
+        })()
+    })
+    annotations?: Annotations
 }

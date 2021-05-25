@@ -109,6 +109,7 @@ type config struct {
 	PProf struct {
 		Addr string `json:"addr"`
 	} `json:"pprof"`
+
 	Prometheus struct {
 		Addr string `json:"addr"`
 	} `json:"prometheus"`

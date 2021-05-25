@@ -6,8 +6,15 @@
 
 import { BlobServiceClient } from "@gitpod/content-service/lib/blobs_grpc_pb";
 import { DownloadUrlRequest, DownloadUrlResponse, UploadUrlRequest, UploadUrlResponse } from '@gitpod/content-service/lib/blobs_pb';
-import { AppInstallationDB, UserDB, UserMessageViewsDB, WorkspaceDB, DBWithTracing, TracedWorkspaceDB, DBGitpodToken, DBUser, UserStorageResourcesDB } from '@gitpod/gitpod-db/lib';
-import { AuthProviderEntry, AuthProviderInfo, Branding, CommitContext, Configuration, CreateWorkspaceMode, DisposableCollection, GetWorkspaceTimeoutResult, GitpodClient, GitpodServer, GitpodToken, GitpodTokenType, InstallPluginsParams, PermissionName, PortVisibility, PrebuiltWorkspace, PrebuiltWorkspaceContext, PreparePluginUploadParams, ResolvedPlugins, ResolvePluginsParams, SetWorkspaceTimeoutResult, StartPrebuildContext, StartWorkspaceResult, Terms, Token, UninstallPluginParams, User, UserEnvVar, UserEnvVarValue, UserInfo, WhitelistedRepository, Workspace, WorkspaceContext, WorkspaceCreationResult, WorkspaceImageBuild, WorkspaceInfo, WorkspaceInstance, WorkspaceInstancePort, WorkspaceInstanceUser, WorkspaceTimeoutDuration, GuessGitTokenScopesParams, GuessedGitTokenScopes } from '@gitpod/gitpod-protocol';
+import { AppInstallationDB } from '@gitpod/gitpod-db/lib/app-installation-db';
+import { DBWithTracing, TracedWorkspaceDB } from '@gitpod/gitpod-db/lib/traced-db';
+import { DBGitpodToken } from '@gitpod/gitpod-db/lib/typeorm/entity/db-gitpod-token';
+import { DBUser } from '@gitpod/gitpod-db/lib/typeorm/entity/db-user';
+import { UserDB } from '@gitpod/gitpod-db/lib/user-db';
+import { UserMessageViewsDB } from '@gitpod/gitpod-db/lib/user-message-views-db';
+import { UserStorageResourcesDB } from '@gitpod/gitpod-db/lib/user-storage-resources-db';
+import { WorkspaceDB } from '@gitpod/gitpod-db/lib/workspace-db';
+import { AuthProviderEntry, AuthProviderInfo, Branding, CommitContext, Configuration, CreateWorkspaceMode, DisposableCollection, GetWorkspaceTimeoutResult, GitpodClient, GitpodServer, GitpodToken, GitpodTokenType, InstallPluginsParams, PermissionName, PortVisibility, PrebuiltWorkspace, PrebuiltWorkspaceContext, PreparePluginUploadParams, ResolvedPlugins, ResolvePluginsParams, SetWorkspaceTimeoutResult, StartPrebuildContext, StartWorkspaceResult, Terms, Token, UninstallPluginParams, User, UserEnvVar, UserEnvVarValue, UserInfo, UserMessage, WhitelistedRepository, Workspace, WorkspaceContext, WorkspaceCreationResult, WorkspaceImageBuild, WorkspaceInfo, WorkspaceInstance, WorkspaceInstancePort, WorkspaceInstanceUser, WorkspaceTimeoutDuration, GuessGitTokenScopesParams, GuessedGitTokenScopes, WorkspaceCluster } from '@gitpod/gitpod-protocol';
 import { AccountStatement } from "@gitpod/gitpod-protocol/lib/accounting-protocol";
 import { AdminBlockUserRequest, AdminGetListRequest, AdminGetListResult, AdminGetWorkspacesRequest, AdminModifyPermanentWorkspaceFeatureFlagRequest, AdminModifyRoleOrPermissionRequest, WorkspaceAndInstance } from '@gitpod/gitpod-protocol/lib/admin-protocol';
 import { GetLicenseInfoResult, LicenseFeature, LicenseValidationResult } from '@gitpod/gitpod-protocol/lib/license-protocol';
@@ -386,6 +393,37 @@ export class GitpodServerImpl<Client extends GitpodClient, Server extends Gitpod
     }
 
     public async getWorkspace(id: string): Promise<WorkspaceInfo> {
+        const user = this.checkUser('getWorkspace');
+        const span = opentracing.globalTracer().startSpan("getWorkspace");
+        span.setTag("workspaceId", id);
+        span.setTag("userId", user.id);
+
+        try {
+            const workspace = await this.internalGetWorkspace(id, this.workspaceDb.trace({ span }));
+            await this.guardAccess({ kind: "workspace", subject: workspace }, "get");
+
+            const latestInstance = await this.workspaceDb.trace({}).findCurrentInstance(id);
+            if (!!latestInstance) {
+                await this.guardAccess({
+                    kind: "workspaceInstance",
+                    subject: latestInstance,
+                    workspaceOwnerID: workspace.ownerId,
+                    workspaceIsShared: workspace.shareable || false,
+                }, "get");
+            }
+
+            return {
+                workspace,
+                latestInstance: this.censorInstance(latestInstance)
+            };
+        } catch (e) {
+            TraceContext.logError({ span }, e);
+            throw e;
+        } finally {
+            span.finish();
+        }
+    }
+    public async getClusters(): Promise<WorkspaceCluster> {
         const user = this.checkUser('getWorkspace');
         const span = opentracing.globalTracer().startSpan("getWorkspace");
         span.setTag("workspaceId", id);

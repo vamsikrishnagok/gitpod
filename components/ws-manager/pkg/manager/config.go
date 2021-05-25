@@ -81,6 +81,25 @@ type Configuration struct {
 	TheiaSupervisorToken string `json:"theiaSupervisorToken"`
 	// RegistryFacadeHost is the host (possibly including port) on which the registry facade resolves
 	RegistryFacadeHost string `json:"registryFacadeHost"`
+	// DeploymentInfo to store information about cluster
+	DeploymentInfo *DeploymentInfo `json:"deploymentInfo"`
+}
+
+// DeploymentInfo
+type DeploymentInfo struct {
+	ClusterName string `json:"clusterName"`
+
+	ProjectName string `json:"projectName"`
+
+	PodUrl string `json:"podUrl"`
+
+	PodLogsUrl string `json:"podLogsUrl"`
+
+	NodeUrl string `json:"nodeUrl"`
+
+	PodMetricsUrl string `json:"podMetricsUrl"`
+
+	NodeMetricsUrl string `json:"nodeMetricsUrl"`
 }
 
 // AllContainerConfiguration contains the configuration for all container in a workspace pod

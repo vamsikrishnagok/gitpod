@@ -6,6 +6,7 @@
 
 import { WorkspaceInstance, PortVisibility } from "./workspace-instance";
 import { RoleOrPermission } from "./permission";
+// import { WorkspaceCluster } from "./workspace-cluster";
 
 export interface UserInfo {
     name?: string
@@ -514,7 +515,7 @@ export interface UninstallPluginParams {
 export interface GuessGitTokenScopesParams {
     host: string
     repoUrl: string
-	gitCommand: string
+    gitCommand: string
     currentToken: GitToken
 }
 
@@ -984,6 +985,11 @@ export namespace WorkspaceInstancePortsChangedEvent {
 export interface WorkspaceInfo {
     workspace: Workspace
     latestInstance?: WorkspaceInstance
+    // cluster?: WorkspaceCluster
+}
+
+export interface WorkspaceCluster {
+    cluster: WorkspaceCluster
 }
 
 export namespace WorkspaceInfo {

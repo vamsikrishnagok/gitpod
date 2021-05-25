@@ -9,6 +9,7 @@ import { Without } from "./util/without";
 import { WorkspaceInstance, WorkspaceInstancePhase } from "./workspace-instance";
 import { RoleOrPermission } from "./permission";
 import { AccountStatement } from "./accounting-protocol";
+import { WorkspaceCluster } from "./workspace-cluster";
 
 export interface AdminServer {
     adminGetUsers(req: AdminGetListRequest<User>): Promise<AdminGetListResult<User>>;
@@ -30,6 +31,8 @@ export interface AdminServer {
     adminIsStudent(userId: string): Promise<boolean>;
     adminAddStudentEmailDomain(userId: string, domain: string): Promise<void>;
     adminGrantExtraHours(userId: string, extraHours: number): Promise<void>;
+
+    adminGetClusters(): Promise<WorkspaceCluster>
 }
 
 export interface AdminGetListRequest<T> {

@@ -4,40 +4,40 @@
  * See License-AGPL.txt in the project root for license information.
  */
 
- import { Repository, EntityManager, DeepPartial } from "typeorm";
- import { injectable, inject } from "inversify";
- import { TypeORM } from "./typeorm";
+import { Repository, EntityManager, DeepPartial } from "typeorm";
+import { injectable, inject } from "inversify";
+import { TypeORM } from "./typeorm";
 import { WorkspaceClusterDB } from "../workspace-cluster-db";
 import { DBWorkspaceCluster } from "./entity/db-workspace-cluster";
 import { WorkspaceCluster, WorkspaceClusterFilter, WorkspaceClusterWoTLS } from "@gitpod/gitpod-protocol/lib/workspace-cluster";
 
- @injectable()
- export class WorkspaceClusterDBImpl implements WorkspaceClusterDB {
+@injectable()
+export class WorkspaceClusterDBImpl implements WorkspaceClusterDB {
 
-     @inject(TypeORM) typeORM: TypeORM;
+    @inject(TypeORM) typeORM: TypeORM;
 
-     protected async getEntityManager(): Promise<EntityManager> {
-         return (await this.typeORM.getConnection()).manager;
-     }
+    protected async getEntityManager(): Promise<EntityManager> {
+        return (await this.typeORM.getConnection()).manager;
+    }
 
-     protected async getRepo(): Promise<Repository<DBWorkspaceCluster>> {
-         return (await this.getEntityManager()).getRepository(DBWorkspaceCluster);
-     }
+    protected async getRepo(): Promise<Repository<DBWorkspaceCluster>> {
+        return (await this.getEntityManager()).getRepository(DBWorkspaceCluster);
+    }
 
-     async save(cluster: WorkspaceCluster): Promise<void> {
-         const repo = await this.getRepo();
-         await repo.save(cluster);
-     }
+    async save(cluster: WorkspaceCluster): Promise<void> {
+        const repo = await this.getRepo();
+        await repo.save(cluster);
+    }
 
-     async deleteByName(name: string): Promise<void> {
-         const repo = await this.getRepo();
-         await repo.deleteById(name);
-     }
+    async deleteByName(name: string): Promise<void> {
+        const repo = await this.getRepo();
+        await repo.deleteById(name);
+    }
 
-     async findByName(name: string): Promise<WorkspaceCluster | undefined> {
-         const repo = await this.getRepo();
-         return repo.findOneById(name);
-     }
+    async findByName(name: string): Promise<WorkspaceCluster | undefined> {
+        const repo = await this.getRepo();
+        return repo.findOneById(name);
+    }
 
 
     async findFiltered(predicate: DeepPartial<WorkspaceClusterFilter>): Promise<WorkspaceClusterWoTLS[]> {
@@ -48,6 +48,7 @@ import { WorkspaceCluster, WorkspaceClusterFilter, WorkspaceClusterWoTLS } from 
             maxScore: 0,
             state: "available",
             govern: false,
+            annotations: {},
             admissionConstraints: [],
         };
 
@@ -69,4 +70,4 @@ import { WorkspaceCluster, WorkspaceClusterFilter, WorkspaceClusterWoTLS } from 
         }
         return qb.getMany();
     }
- }
+}
