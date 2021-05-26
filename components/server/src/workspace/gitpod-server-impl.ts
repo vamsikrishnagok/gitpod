@@ -14,8 +14,8 @@ import { UserDB } from '@gitpod/gitpod-db/lib/user-db';
 import { UserMessageViewsDB } from '@gitpod/gitpod-db/lib/user-message-views-db';
 import { UserStorageResourcesDB } from '@gitpod/gitpod-db/lib/user-storage-resources-db';
 import { WorkspaceDB } from '@gitpod/gitpod-db/lib/workspace-db';
-import { WorkspaceClusterDB } from '@gitpod/gitpod-protocol/lib/workspace-cluster';
-import { AuthProviderEntry, AuthProviderInfo, Branding, CommitContext, Configuration, CreateWorkspaceMode, DisposableCollection, GetWorkspaceTimeoutResult, GitpodClient, GitpodServer, GitpodToken, GitpodTokenType, InstallPluginsParams, PermissionName, PortVisibility, PrebuiltWorkspace, PrebuiltWorkspaceContext, PreparePluginUploadParams, ResolvedPlugins, ResolvePluginsParams, SetWorkspaceTimeoutResult, StartPrebuildContext, StartWorkspaceResult, Terms, Token, UninstallPluginParams, User, UserEnvVar, UserEnvVarValue, UserInfo, UserMessage, WhitelistedRepository, Workspace, WorkspaceContext, WorkspaceCreationResult, WorkspaceImageBuild, WorkspaceInfo, WorkspaceInstance, WorkspaceInstancePort, WorkspaceInstanceUser, WorkspaceTimeoutDuration, GuessGitTokenScopesParams, GuessedGitTokenScopes, WorkspaceCluster } from '@gitpod/gitpod-protocol';
+import { WorkspaceClusterDB, WorkspaceClusterWoTLS } from '@gitpod/gitpod-protocol/lib/workspace-cluster';
+import { AuthProviderEntry, AuthProviderInfo, Branding, CommitContext, Configuration, CreateWorkspaceMode, DisposableCollection, GetWorkspaceTimeoutResult, GitpodClient, GitpodServer, GitpodToken, GitpodTokenType, InstallPluginsParams, PermissionName, PortVisibility, PrebuiltWorkspace, PrebuiltWorkspaceContext, PreparePluginUploadParams, ResolvedPlugins, ResolvePluginsParams, SetWorkspaceTimeoutResult, StartPrebuildContext, StartWorkspaceResult, Terms, Token, UninstallPluginParams, User, UserEnvVar, UserEnvVarValue, UserInfo, UserMessage, WhitelistedRepository, Workspace, WorkspaceContext, WorkspaceCreationResult, WorkspaceImageBuild, WorkspaceInfo, WorkspaceInstance, WorkspaceInstancePort, WorkspaceInstanceUser, WorkspaceTimeoutDuration, GuessGitTokenScopesParams, GuessedGitTokenScopesr } from '@gitpod/gitpod-protocol';
 import { AccountStatement } from "@gitpod/gitpod-protocol/lib/accounting-protocol";
 import { AdminBlockUserRequest, AdminGetListRequest, AdminGetListResult, AdminGetWorkspacesRequest, AdminModifyPermanentWorkspaceFeatureFlagRequest, AdminModifyRoleOrPermissionRequest, AdminGetWorkspaceClustersRequest, WorkspaceAndInstance } from '@gitpod/gitpod-protocol/lib/admin-protocol';
 import { GetLicenseInfoResult, LicenseFeature, LicenseValidationResult } from '@gitpod/gitpod-protocol/lib/license-protocol';
@@ -27,7 +27,6 @@ import { log, LogContext } from '@gitpod/gitpod-protocol/lib/util/logging';
 import { TraceContext } from '@gitpod/gitpod-protocol/lib/util/tracing';
 import { ImageBuilderClientProvider, LogsRequest } from '@gitpod/image-builder/lib';
 import { WorkspaceManagerClientProvider } from '@gitpod/ws-manager/lib/client-provider';
-import { WorkspaceCluster } from "@gitpod/gitpod-protocol/lib/workspace-cluster";
 import { ControlPortRequest, DescribeWorkspaceRequest, MarkActiveRequest, PortSpec, PortVisibility as ProtoPortVisibility, StopWorkspacePolicy, StopWorkspaceRequest } from '@gitpod/ws-manager/lib/core_pb';
 import * as crypto from 'crypto';
 import { inject, injectable } from 'inversify';
@@ -1543,7 +1542,7 @@ export class GitpodServerImpl<Client extends GitpodClient, Server extends Gitpod
         throw new ResponseError(ErrorCodes.EE_FEATURE, `Admin support is implemented in Gitpod's Enterprise Edition`);
     }
 
-    async adminGetClusters(req: AdminGetWorkspaceClustersRequest): Promise<AdminGetListResult<WorkspaceCluster>> {
+    async adminGetClusters(req: AdminGetWorkspaceClustersRequest): Promise<AdminGetListResult<WorkspaceClusterWoTLS>> {
         throw new ResponseError(ErrorCodes.EE_FEATURE, `Admin support is implemented in Gitpod's Enterprise Edition`);
     }
 
