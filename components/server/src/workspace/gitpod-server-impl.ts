@@ -1542,7 +1542,7 @@ export class GitpodServerImpl<Client extends GitpodClient, Server extends Gitpod
         throw new ResponseError(ErrorCodes.EE_FEATURE, `Admin support is implemented in Gitpod's Enterprise Edition`);
     }
 
-    async adminGetClusters(req: AdminGetWorkspaceClustersRequest): Promise<AdminGetListResult<WorkspaceClusterWoTLS>> {
+    async adminGetWorkspaceClusters(req: AdminGetWorkspaceClustersRequest): Promise<AdminGetListResult<WorkspaceClusterWoTLS>> {
         throw new ResponseError(ErrorCodes.EE_FEATURE, `Admin support is implemented in Gitpod's Enterprise Edition`);
     }
 

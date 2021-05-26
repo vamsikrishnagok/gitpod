@@ -32,7 +32,7 @@ export interface AdminServer {
     adminAddStudentEmailDomain(userId: string, domain: string): Promise<void>;
     adminGrantExtraHours(userId: string, extraHours: number): Promise<void>;
 
-    adminGetClusters(req: AdminGetWorkspaceClustersRequest): Promise<AdminGetListResult<WorkspaceClusterWoTLS>>
+    adminGetWorkspaceClusters(req: AdminGetWorkspaceClustersRequest): Promise<AdminGetListResult<WorkspaceClusterWoTLS>>
 }
 
 export interface AdminGetListRequest<T> {
