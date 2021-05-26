@@ -65,13 +65,20 @@ data:
                 "timeout": "1s"
             },
             "deploymentInfo": {
-                "clusterName": "{{ .Values.clusterInfo.name }}",
-                "projectName": "{{ .Values.clusterInfo.projectName }}",
-                "podUrl": "{{ .Values.clusterInfo.podUrl }}",
-                "nodeUrl": "{{ .Values.clusterInfo.nodeUrl }}",
-                "podLogsUrl": "{{ .Values.clusterInfo.podLogsUrl }}",
-                "podMetricsUrl": "{{ .Values.clusterInfo.podMetricsUrl }}",
-                "nodeMetricsUrl": "{{ .Values.clusterInfo.nodeMetricsUrl }}"
+                # "clusterName": "{{ .Values.clusterInfo.name }}",
+                # "projectName": "{{ .Values.clusterInfo.projectName }}",
+                # "podUrl": "{{ .Values.clusterInfo.podUrl }}",
+                # "nodeUrl": "{{ .Values.clusterInfo.nodeUrl }}",
+                # "podLogsUrl": "{{ .Values.clusterInfo.podLogsUrl }}",
+                # "podMetricsUrl": "{{ .Values.clusterInfo.podMetricsUrl }}",
+                # "nodeMetricsUrl": "{{ .Values.clusterInfo.nodeMetricsUrl }}"
+                "clusterName": "c1",
+                "projectName": "p1",
+                "podUrl": "podUrl1",
+                "nodeUrl": "nodeUrl1",
+                "podLogsUrl": "podLogsUrl",
+                "podMetricsUrl": "podMetricsUrl",
+                "nodeMetricsUrl": "noeMetricsUrl"
             },
             "urlTemplate":     "https://{{"{{ .Prefix }}"}}.ws{{- if $.Values.installation.shortname -}}-{{ $.Values.installation.shortname }}{{- end -}}.{{ $.Values.hostname }}",
             "portUrlTemplate": "https://{{"{{ .WorkspacePort }}"}}-{{"{{ .Prefix }}"}}.ws{{- if $.Values.installation.shortname -}}-{{ $.Values.installation.shortname }}{{- end -}}.{{ $.Values.hostname }}",
