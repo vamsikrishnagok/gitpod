@@ -19,6 +19,7 @@ import { log } from '@gitpod/gitpod-protocol/lib/util/logging';
 import { DBPrebuiltWorkspace } from "./entity/db-prebuilt-workspace";
 import { DBPrebuiltWorkspaceUpdatable } from "./entity/db-prebuilt-workspace-updatable";
 import { BUILTIN_WORKSPACE_PROBE_USER_NAME } from "../user-db";
+import { DBWorkspaceCluster } from "./entity/db-workspace-cluster";
 
 type RawTo<T> = (instance: WorkspaceInstance, ws: Workspace) => T;
 interface OrderBy {
@@ -35,6 +36,10 @@ export abstract class AbstractTypeORMWorkspaceDBImpl extends AbstractWorkspaceDB
 
     protected async getWorkspaceRepo(): Promise<Repository<DBWorkspace>> {
         return await (await this.getManager()).getRepository<DBWorkspace>(DBWorkspace);
+    }
+
+    protected async getWorkspaceClusterRepo(): Promise<Repository<DBWorkspaceCluster>> {
+        return await (await this.getManager()).getRepository<DBWorkspaceCluster>(DBWorkspaceCluster);
     }
 
     protected async getWorkspaceInstanceRepo(): Promise<Repository<DBWorkspaceInstance>> {
@@ -144,7 +149,7 @@ export abstract class AbstractTypeORMWorkspaceDBImpl extends AbstractWorkspaceDB
             .addOrderBy('GREATEST(ws.creationTime, wsi.creationTime, wsi.startedTime, wsi.stoppedTime)', 'DESC')
             .limit(options.limit || 10);
         if (options.searchString) {
-            qb = qb.andWhere("ws.description LIKE :searchString", {searchString: `%${options.searchString}%`});
+            qb = qb.andWhere("ws.description LIKE :searchString", { searchString: `%${options.searchString}%` });
         }
         if (!options.includeHeadless) {
             qb = qb.andWhere("ws.type = 'regular'");
@@ -518,7 +523,7 @@ export abstract class AbstractTypeORMWorkspaceDBImpl extends AbstractWorkspaceDB
 
     public async findSnapshotsByWorkspaceId(workspaceId: string): Promise<Snapshot[]> {
         const snapshots = await this.getSnapshotRepo();
-        return snapshots.find({where: {originalWorkspaceId: workspaceId}});
+        return snapshots.find({ where: { originalWorkspaceId: workspaceId } });
     }
 
     public async storePrebuiltWorkspace(pws: PrebuiltWorkspace): Promise<PrebuiltWorkspace> {
@@ -535,7 +540,7 @@ export abstract class AbstractTypeORMWorkspaceDBImpl extends AbstractWorkspaceDB
         }
         const repo = await this.getPrebuiltWorkspaceRepo();
         return await repo.createQueryBuilder('pws')
-            .where('pws.cloneURL = :cloneURL AND pws.commit LIKE :commit', { cloneURL, commit: commit+'%' })
+            .where('pws.cloneURL = :cloneURL AND pws.commit LIKE :commit', { cloneURL, commit: commit + '%' })
             .orderBy('pws.creationTime', 'DESC')
             .innerJoinAndMapOne('pws.workspace', DBWorkspace, 'ws', "pws.buildWorkspaceId = ws.id and ws.contentDeletedTime = ''")
             .getOne();
@@ -695,7 +700,15 @@ export abstract class AbstractTypeORMWorkspaceDBImpl extends AbstractWorkspaceDB
         return { total, rows };
     }
 
-
+    // public async findAllWorkspaceClusters(offset: number, limit: number, orderBy: keyof WorkspaceCluster, orderDir: "ASC" | "DESC"): Promise<{ total: number, rows: WorkspaceCluster }> {
+    //     const workspaceClusterRepo = await this.getWorkspaceClusterRepo();
+    //     const queryBuilder = workspaceClusterRepo.createQueryBuilder("wsc")
+    //         .skip(offset)
+    //         .take(limit)
+    //         .orderBy(orderBy, orderDir);
+    //     const [rows, total] = await queryBuilder.getManyAndCount();
+    //     return { total, rows };
+    // }
 
     public async findAllWorkspaceAndInstances(offset: number, limit: number, orderBy: keyof WorkspaceAndInstance, orderDir: "ASC" | "DESC", ownerId?: string, searchTerm?: string): Promise<{ total: number, rows: WorkspaceAndInstance[] }> {
         let joinConditions = [];
@@ -731,7 +744,7 @@ export abstract class AbstractTypeORMWorkspaceDBImpl extends AbstractWorkspaceDB
                 'wsi2.workspaceId = ws.id',
                 '(wsi.creationTime < wsi2.creationTime OR (wsi.creationTime = wsi2.creationTime AND wsi.id < wsi2.id))'
             ].join(' AND '))
-            .where([ ... joinConditions, 'wsi2.id IS NULL' ].join(' AND '), joinConditionParams)
+            .where([...joinConditions, 'wsi2.id IS NULL'].join(' AND '), joinConditionParams)
             .orderBy(orderField, orderDir)
             .take(limit)
             .skip(offset);
@@ -765,7 +778,7 @@ export abstract class AbstractTypeORMWorkspaceDBImpl extends AbstractWorkspaceDB
         const workspaceRepo = await this.getWorkspaceRepo();
         const workspace = await workspaceRepo.findOneById(id);
         if (!workspace) {
-             return;
+            return;
         }
 
         const instance = await this.findCurrentInstance(id);

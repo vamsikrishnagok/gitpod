@@ -15,6 +15,7 @@ export const Permissions = {
     "admin-workspaces": undefined,
     "admin-api": undefined,
     "ide-settings": undefined,
+    "admin-workspace-cluster": undefined,
     "new-workspace-cluster": undefined,
 };
 export type PermissionName = keyof (typeof Permissions);
@@ -52,6 +53,9 @@ export namespace Permission {
 
     /** The permission to access the admin API */
     export const ADMIN_API: PermissionName = "admin-api";
+
+    /** The permission to access all the workspace clusters data */
+    export const ADMIN_WORKSPACE_CLUSTERS: PermissionName = "admin-workspace-cluster";
 
     /** The permission to access the IDE settings */
     export const IDE_SETTINGS: PermissionName = "ide-settings";

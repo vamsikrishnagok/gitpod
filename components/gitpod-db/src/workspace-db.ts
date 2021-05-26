@@ -7,7 +7,8 @@
 import { DeepPartial } from 'typeorm';
 import { injectable } from 'inversify';
 
-import { Workspace, WorkspaceInfo, WorkspaceInstance, WorkspaceInstanceUser, WhitelistedRepository, Snapshot, LayoutData, PrebuiltWorkspace, PrebuiltWorkspaceUpdatable, RunningWorkspaceInfo, WorkspaceAndInstance, WorkspaceType } from '@gitpod/gitpod-protocol';
+import { Workspace, WorkspaceInfo, WorkspaceInstance, WorkspaceInstanceUser, WhitelistedRepository, Snapshot, LayoutData, PrebuiltWorkspace, PrebuiltWorkspaceUpdatable, RunningWorkspaceInfo, WorkspaceAndInstance, WorkspaceType, WorkspaceCluster } from '@gitpod/gitpod-protocol';
+import { WorkspaceCluster } from '@gitpod/gitpod-protocol/lib/workspace-cluster';
 
 export type MaybeWorkspace = Workspace | undefined;
 export type MaybeWorkspaceInstance = WorkspaceInstance | undefined;
@@ -66,7 +67,7 @@ export interface WorkspaceDB {
 
     // Partial update: unconditional, single field updates. Enclose in a transaction if necessary
     updateLastHeartbeat(instanceId: string, userId: string, newHeartbeat: Date, wasClosed?: boolean): Promise<void>;
-    getLastOwnerHeartbeatFor(instance: WorkspaceInstance): Promise<{ lastSeen:Date, wasClosed?: boolean} | undefined>;
+    getLastOwnerHeartbeatFor(instance: WorkspaceInstance): Promise<{ lastSeen: Date, wasClosed?: boolean } | undefined>;
     getWorkspaceUsers(workspaceId: string, minLastSeen: number): Promise<WorkspaceInstanceUser[]>;
     updateInstancePartial(instanceId: string, partial: DeepPartial<WorkspaceInstance>): Promise<WorkspaceInstance>;
 
@@ -85,10 +86,11 @@ export interface WorkspaceDB {
 
     findAllWorkspaceInstances(offset: number, limit: number, orderBy: keyof WorkspaceInstance, orderDir: "ASC" | "DESC", ownerId?: string, minCreationTime?: Date, maxCreationTime?: Date, onlyRunning?: boolean, type?: WorkspaceType): Promise<{ total: number, rows: WorkspaceInstance[] }>;
 
+    // findAllWorkspaceClusters(offset: number, limit:number, orderBy: keyof WorkspaceCluster, orderDir: "ASC" | "DESC"): Promise<{total: number, rows: WorkspaceCluster}>;
     findRegularRunningInstances(userId?: string): Promise<WorkspaceInstance[]>;
     findRunningInstancesWithWorkspaces(installation?: string, userId?: string): Promise<RunningWorkspaceInfo[]>;
 
-    isWhitelisted(repositoryUrl : string): Promise<boolean>;
+    isWhitelisted(repositoryUrl: string): Promise<boolean>;
     getFeaturedRepositories(): Promise<Partial<WhitelistedRepository>[]>;
 
     findSnapshotById(snapshotId: string): Promise<Snapshot | undefined>;
@@ -150,7 +152,7 @@ export abstract class AbstractWorkspaceDB implements WorkspaceDB {
     }
 
     abstract updateLastHeartbeat(instanceId: string, userId: string, newHeartbeat: Date, wasClosed?: boolean): Promise<void>;
-    abstract getLastOwnerHeartbeatFor(instance: WorkspaceInstance): Promise<{ lastSeen: Date, wasClosed?: boolean} | undefined>;
+    abstract getLastOwnerHeartbeatFor(instance: WorkspaceInstance): Promise<{ lastSeen: Date, wasClosed?: boolean } | undefined>;
     abstract getWorkspaceUsers(workspaceId: string, minLastSeen: number): Promise<WorkspaceInstanceUser[]>;
     abstract updateInstancePartial(instanceId: string, partial: DeepPartial<WorkspaceInstance>): Promise<WorkspaceInstance>;
 
@@ -164,7 +166,7 @@ export abstract class AbstractWorkspaceDB implements WorkspaceDB {
         return undefined;
     }
 
-    abstract isWhitelisted(repositoryUrl : string): Promise<boolean>;
+    abstract isWhitelisted(repositoryUrl: string): Promise<boolean>;
     abstract getFeaturedRepositories(): Promise<Partial<WhitelistedRepository>[]>;
 
     abstract findSnapshotById(snapshotId: string): Promise<Snapshot | undefined>;
