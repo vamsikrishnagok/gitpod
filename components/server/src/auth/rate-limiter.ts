@@ -106,6 +106,7 @@ function readConfig(): RateLimiterConfig {
         "adminForceStopWorkspace": { group: "default", points: 1 },
         "adminRestoreSoftDeletedWorkspace": { group: "default", points: 1 },
         "adminSetLicense": { group: "default", points: 1 },
+        "adminGetWorkspaceClusters": { group: "default", points: 1 },
 
         "validateLicense": { group: "default", points: 1 },
         "getLicenseInfo": { group: "default", points: 1 },
