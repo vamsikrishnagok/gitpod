@@ -65,13 +65,6 @@ data:
                 "timeout": "1s"
             },
             "deploymentInfo": {
-                # "clusterName": "{{ .Values.clusterInfo.name }}",
-                # "projectName": "{{ .Values.clusterInfo.projectName }}",
-                # "podUrl": "{{ .Values.clusterInfo.podUrl }}",
-                # "nodeUrl": "{{ .Values.clusterInfo.nodeUrl }}",
-                # "podLogsUrl": "{{ .Values.clusterInfo.podLogsUrl }}",
-                # "podMetricsUrl": "{{ .Values.clusterInfo.podMetricsUrl }}",
-                # "nodeMetricsUrl": "{{ .Values.clusterInfo.nodeMetricsUrl }}"
                 "clusterName": "c1",
                 "projectName": "p1",
                 "podUrl": "podUrl1",
