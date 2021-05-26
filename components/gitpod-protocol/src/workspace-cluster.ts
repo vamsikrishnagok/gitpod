@@ -52,25 +52,25 @@ export interface TLSConfig {
 }
 export interface Annotations {
     // This is the name of kubernetes cluster
-    clusterName: string
+    clusterName?: string
 
     // This is the name of the project where this cluster lives in
-    projectName: string
+    projectName?: string
 
     // pod Url templated string
-    podUrl: string
+    podUrl?: string
 
     // node Url templated string
-    nodeUrl: string
+    nodeUrl?: string
     // pod logs Url templated string
 
-    podLogsUrl: string
+    podLogsUrl?: string
     // pod metrics Url templated string
 
-    podMetricsUrl: string
+    podMetricsUrl?: string
 
     // node metrics Url templated string
-    nodeMetricsUrl: string
+    nodeMetricsUrl?: string
 }
 export namespace TLSConfig {
     export const loadFromBase64File = (path: string): string => fs.readFileSync(filePathTelepresenceAware(path)).toString("base64");
