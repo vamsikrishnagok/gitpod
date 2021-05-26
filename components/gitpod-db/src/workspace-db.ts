@@ -8,7 +8,6 @@ import { DeepPartial } from 'typeorm';
 import { injectable } from 'inversify';
 
 import { Workspace, WorkspaceInfo, WorkspaceInstance, WorkspaceInstanceUser, WhitelistedRepository, Snapshot, LayoutData, PrebuiltWorkspace, PrebuiltWorkspaceUpdatable, RunningWorkspaceInfo, WorkspaceAndInstance, WorkspaceType, WorkspaceCluster } from '@gitpod/gitpod-protocol';
-import { WorkspaceCluster } from '@gitpod/gitpod-protocol/lib/workspace-cluster';
 
 export type MaybeWorkspace = Workspace | undefined;
 export type MaybeWorkspaceInstance = WorkspaceInstance | undefined;
