@@ -35,16 +35,24 @@ export default function WorkspaceDetail(props: { workspace: WorkspaceAndInstance
     const reload = async () => {
         try {
             setActivity(true);
+            console.log("Inside reload")
             const ws = await getGitpodService().server.adminGetWorkspace(workspace.workspaceId);
+            console.log("Inside reload - called adminGetWorkspace")
+            console.log(ws)
             setWorkspace(ws);
-            const wsc = await getGitpodService().server.adminGetWorkspaceClusters({});
-            console.log(wsc)
+            try {
+                const wsc = await getGitpodService().server.adminGetWorkspaceClusters({});
+                console.log("Inside reload - called adminGetWorkspaceClusters")
+                console.log(wsc)
+            } catch (e) {
+                console.log("Inside reload - error calling adminGetWorkspaceClusters")
+            }
         } finally {
             setActivity(false);
         }
     }
     const adminLinks = getAdminLinks(workspace);
-    const adminLink = (i: number) => <Property key={'admin-'+i} name={adminLinks[i]?.name || ''}><a className="text-blue-400 dark:text-blue-600 hover:text-blue-600 dark:hover:text-blue-400" href={adminLinks[i]?.url}>{adminLinks[i]?.title || ''}</a></Property>;
+    const adminLink = (i: number) => <Property key={'admin-' + i} name={adminLinks[i]?.name || ''}><a className="text-blue-400 dark:text-blue-600 hover:text-blue-600 dark:hover:text-blue-400" href={adminLinks[i]?.url}>{adminLinks[i]?.title || ''}</a></Property>;
     return <>
         <div className="flex">
             <div className="flex-1">
@@ -80,12 +88,12 @@ export default function WorkspaceDetail(props: { workspace: WorkspaceAndInstance
                 </div>
                 <div className="flex w-full mt-6">
                     {
-                        [0,1,2].map(adminLink)
+                        [0, 1, 2].map(adminLink)
                     }
                 </div>
                 <div className="flex w-full mt-6">
                     {
-                        [3,4,5].map(adminLink)
+                        [3, 4, 5].map(adminLink)
                     }
                 </div>
             </div>
