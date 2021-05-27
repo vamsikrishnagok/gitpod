@@ -12,7 +12,7 @@ export class AlterClusterTable1621856088352 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {
         if (await tableExists(queryRunner, "d_b_workspace_cluster")) {
             if (!(await columnExists(queryRunner, "d_b_workspace_cluster", "annotations"))) {
-                await queryRunner.query("ALTER TABLE `d_b_workspace_cluster` ADD COLUMN annotations JSON NOT NULL");
+                await queryRunner.query("ALTER TABLE `d_b_workspace_cluster` ADD COLUMN annotations JSON");
             }
         }
     }

@@ -10,6 +10,7 @@ import { TypeORM } from "./typeorm";
 import { WorkspaceClusterDB } from "../workspace-cluster-db";
 import { DBWorkspaceCluster } from "./entity/db-workspace-cluster";
 import { WorkspaceCluster, WorkspaceClusterFilter, WorkspaceClusterWoTLS } from "@gitpod/gitpod-protocol/lib/workspace-cluster";
+import { log } from "@gitpod/gitpod-protocol/lib/util/logging";
 
 @injectable()
 export class WorkspaceClusterDBImpl implements WorkspaceClusterDB {
@@ -52,6 +53,7 @@ export class WorkspaceClusterDBImpl implements WorkspaceClusterDB {
             admissionConstraints: [],
         };
 
+        log.info("Creating repo object")
         const repo = await this.getRepo();
         let qb = repo.createQueryBuilder("wsc")
             .select(Object.keys(prototype).map(k => `wsc.${k}`))
@@ -68,6 +70,8 @@ export class WorkspaceClusterDBImpl implements WorkspaceClusterDB {
         if (predicate.url !== undefined) {
             qb = qb.andWhere("wsc.url = :url", predicate);
         }
+        log.info("Creatied query:" + qb)
+
         return qb.getMany();
     }
 }
