@@ -69,7 +69,7 @@ export interface AdminModifyPermanentWorkspaceFeatureFlagRequest {
     }[]
 }
 
-export interface WorkspaceAndInstance extends Without<Workspace, "id"|"creationTime">, Without<WorkspaceInstance, "id"|"creationTime"> {
+export interface WorkspaceAndInstance extends Without<Workspace, "id" | "creationTime">, Without<WorkspaceInstance, "id" | "creationTime"> {
     workspaceId: string;
     workspaceCreationTime: string;
     instanceId: string;
@@ -82,7 +82,7 @@ export namespace WorkspaceAndInstance {
         return {
             id: wai.workspaceId,
             creationTime: wai.workspaceCreationTime,
-            ... wai
+            ...wai
         };
     }
 
@@ -93,7 +93,7 @@ export namespace WorkspaceAndInstance {
         return {
             id: wai.instanceId,
             creationTime: wai.instanceCreationTime,
-            ... wai
+            ...wai
         };
     }
 }
@@ -103,5 +103,5 @@ export interface AdminGetWorkspacesRequest extends AdminGetListRequest<Workspace
 }
 
 // Marker interface
-export interface AdminGetWorkspaceClustersRequest extends AdminGetListRequest<WorkspaceCluster> {
+export interface AdminGetWorkspaceClustersRequest {
 }
