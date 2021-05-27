@@ -9,7 +9,7 @@ import { Without } from "./util/without";
 import { WorkspaceInstance, WorkspaceInstancePhase } from "./workspace-instance";
 import { RoleOrPermission } from "./permission";
 import { AccountStatement } from "./accounting-protocol";
-import { WorkspaceCluster, WorkspaceClusterWoTLS } from "./workspace-cluster";
+import { WorkspaceClusterWoTLS } from "./workspace-cluster";
 
 export interface AdminServer {
     adminGetUsers(req: AdminGetListRequest<User>): Promise<AdminGetListResult<User>>;
