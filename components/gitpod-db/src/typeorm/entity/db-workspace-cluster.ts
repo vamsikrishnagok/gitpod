@@ -84,32 +84,8 @@ export class DBWorkspaceCluster implements WorkspaceCluster {
     admissionConstraints?: AdmissionConstraint[];
 
     @Column({
-        type: "simple-json",
-        transformer: (() => {
-            const defaultValue = {};
-            const jsonifiedDefault = JSON.stringify(defaultValue);
-            return <ValueTransformer>{
-                // annotations | undefined => <annotations> | "{}"
-                to(value: any): any {
-                    if (!value) {
-                        return jsonifiedDefault;
-                    }
-                    return JSON.stringify(value);
-                },
-                // <annotations> | "{}" => annotations | undefined
-                from(value: any): any {
-                    if (value === jsonifiedDefault) {
-                        return undefined;
-                    }
-                    try {
-                        return JSON.parse(value);
-
-                    } catch (e) {
-                        return "{}";
-                    }
-                }
-            };
-        })()
+        type: 'simple-json',
+        nullable: true,
     })
     annotations?: Annotations
 }
