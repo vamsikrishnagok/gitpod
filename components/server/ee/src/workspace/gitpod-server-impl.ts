@@ -570,6 +570,7 @@ export class GitpodServerEEImpl extends GitpodServerImpl<GitpodClient, GitpodSer
         const span = opentracing.globalTracer().startSpan("adminGetWorkspaceClusters");
         try {
             let wscs = await this.workspaceClusterDb.findFiltered({});
+            log.info("Retrieved: " + wscs)
             return { total: wscs.length, rows: wscs };
         } catch (e) {
             TraceContext.logError({ span }, e);
