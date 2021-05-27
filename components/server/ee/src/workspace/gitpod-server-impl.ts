@@ -566,14 +566,17 @@ export class GitpodServerEEImpl extends GitpodServerImpl<GitpodClient, GitpodSer
     async adminGetWorkspaceClusters(req: AdminGetWorkspaceClustersRequest): Promise<AdminGetListResult<WorkspaceClusterWoTLS>> {
         this.requireEELicense(Feature.FeatureAdminDashboard);
         await this.guardAdminAccess("adminGetWorkspaceClusters", { req }, Permission.ADMIN_WORKSPACE_CLUSTERS);
+        log.info("Post ee license check adminGetWorkspaceClusters")
 
         const span = opentracing.globalTracer().startSpan("adminGetWorkspaceClusters");
         try {
+            log.info("Trying to fetch cluster")
             let wscs = await this.workspaceClusterDb.findFiltered({});
             log.info("Retrieved: " + wscs)
             return { total: wscs.length, rows: wscs };
         } catch (e) {
             TraceContext.logError({ span }, e);
+            log.error("Exception occurred: " + e + " " + e.toString)
             throw new ResponseError(500, e.toString());
         } finally {
             span.finish();
