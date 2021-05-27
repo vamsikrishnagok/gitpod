@@ -37,6 +37,8 @@ export default function WorkspaceDetail(props: { workspace: WorkspaceAndInstance
             setActivity(true);
             const ws = await getGitpodService().server.adminGetWorkspace(workspace.workspaceId);
             setWorkspace(ws);
+            const wsc = await getGitpodService().server.adminGetWorkspaceClusters({});
+            console.log(wsc)
         } finally {
             setActivity(false);
         }
