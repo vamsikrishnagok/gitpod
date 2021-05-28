@@ -25,8 +25,8 @@ func main() {
 		panic(fmt.Errorf("expected exactlly 1 argument, got: %v \n", argsRaw))
 	}
 	args := strings.Split(argsRaw[0], "_")
-	if len(args) != 3 {
-		panic(fmt.Errorf("expected exactlly 3 arguments, got: %v \n", args))
+	if len(args) <= 3 {
+		panic(fmt.Errorf("expected 3-4 arguments, got: %v \n", args))
 	}
 
 	chunkSize, err := strconv.ParseUint(args[0], 10, 64)
@@ -41,6 +41,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	fail := false
+	if len(args) >= 4 && args[3] == "fail" {
+		fail = true
+	}
 
 	go func() {
 		for {
@@ -52,5 +56,10 @@ func main() {
 	}()
 	time.Sleep(timeoutTotal)
 
-	fmt.Println("DONE")
+	exitCode := 0
+	if fail {
+		exitCode = 1
+	}
+	fmt.Printf("DONE, going to exit with code: %d\n", exitCode)
+	os.Exit(exitCode)
 }
