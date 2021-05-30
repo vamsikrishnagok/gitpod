@@ -5,6 +5,7 @@
  */
 
 import { AdminGetListResult, User, WorkspaceAndInstance } from "@gitpod/gitpod-protocol";
+import { WorkspaceClusterWoTLS } from "@gitpod/gitpod-protocol/lib/workspace-cluster";
 import moment from "moment";
 import { useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router";
