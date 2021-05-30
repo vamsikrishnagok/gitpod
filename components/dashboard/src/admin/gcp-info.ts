@@ -4,9 +4,9 @@
  * See License-AGPL.txt in the project root for license information.
  */
 
-import { WorkspaceAndInstance, WorkspaceClusterInfo } from "@gitpod/gitpod-protocol";
+import { WorkspaceAndInstance } from "@gitpod/gitpod-protocol";
 import { log } from "@gitpod/gitpod-protocol/lib/util/logging";
-import { Annotations } from "@gitpod/gitpod-protocol/lib/workspace-cluster";
+import { Annotations, WorkspaceClusterWoTLS } from "@gitpod/gitpod-protocol/lib/workspace-cluster";
 
 export interface Link {
     readonly name: string;
@@ -35,13 +35,13 @@ export function getAdminLinks(workspace: WorkspaceAndInstance): Link[] {
     return internalGetAdminLinks(gcp, baseDomain, workspace.status.podName, workspace.status.nodeName);
 }
 
-export function getAdminLinks1(workspace: WorkspaceAndInstance, clusters: WorkspaceClusterInfo[]): Link[] {
-    let matchingClusterInfo = clusters.find(cluster => cluster.cluster.name === workspace.region);
+export function getAdminLinks1(workspace: WorkspaceAndInstance, clusters: WorkspaceClusterWoTLS[]): Link[] {
+    let matchingClusterInfo = clusters.find(cluster => cluster.name === workspace.region);
     if (!matchingClusterInfo) {
         log.warn("no matching cluster found with name " + workspace.region + ", some links might be broken")
         return [];
     }
-    let clusterAnnotations = matchingClusterInfo.cluster.annotations;
+    let clusterAnnotations = matchingClusterInfo.annotations;
     if (!clusterAnnotations) {
         log.warn("no annotations found in the matching cluster, some links might be broken")
         return [];

@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getGitpodService } from "../service/service";
 import { getProject, WorkspaceStatusIndicator } from "../workspaces/WorkspaceEntry";
-import { getAdminLinks, getAdminLinks1 } from "./gcp-info";
+import { getAdminLinks, 57 } from "./gcp-info";
 import { Property } from "./UserDetail";
 
 export default function WorkspaceDetail(props: { workspace: WorkspaceAndInstance, workspaceClusters: WorkspaceClusterWoTLS[] }) {

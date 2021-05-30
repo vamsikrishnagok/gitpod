@@ -987,8 +987,8 @@ export interface WorkspaceInfo {
     latestInstance?: WorkspaceInstance
 }
 
-export interface WorkspaceClusterInfo {
-    cluster: WorkspaceClusterWoTLS
+export interface WorkspaceClusterInfo extends WorkspaceClusterWoTLS {
+    // cluster: WorkspaceClusterWoTLS
 }
 
 // function(matchingClusterInfo: WorkspaceClusterInfo) {
