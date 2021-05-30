@@ -47,7 +47,7 @@ export function getAdminLinks1(workspace: WorkspaceAndInstance, clusters: Worksp
         return [];
     }
     else {
-        let placeHolderValues: K8sSpecificPlaceholdersValues = { podName: workspace.status.podName || "", nodeName: workspace.status.nodeName || "", namespace: workspace.status.namespace }
+        let placeHolderValues: K8sSpecificPlaceholdersValues = { podName: workspace.status.podName || "", nodeName: workspace.status.nodeName || "", namespace: workspace.status.namespace || "" }
         return internalGetAdminLinks1(clusterAnnotations, placeHolderValues)
     }
 }

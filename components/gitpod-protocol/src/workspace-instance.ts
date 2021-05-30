@@ -59,7 +59,7 @@ export interface WorkspaceInstanceStatus {
     message?: string;
 
     // namespace where this instance is running
-    namespace: string
+    namespace?: string
 
     // exposedPorts is the list of currently exposed ports
     exposedPorts?: WorkspaceInstancePort[];
