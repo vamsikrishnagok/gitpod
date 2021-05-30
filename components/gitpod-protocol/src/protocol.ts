@@ -6,7 +6,7 @@
 
 import { WorkspaceInstance, PortVisibility } from "./workspace-instance";
 import { RoleOrPermission } from "./permission";
-// import { WorkspaceCluster } from "./workspace-cluster";
+import { WorkspaceClusterWoTLS } from "./workspace-cluster";
 
 export interface UserInfo {
     name?: string
@@ -985,12 +985,21 @@ export namespace WorkspaceInstancePortsChangedEvent {
 export interface WorkspaceInfo {
     workspace: Workspace
     latestInstance?: WorkspaceInstance
-    // cluster?: WorkspaceCluster
 }
 
-export interface WorkspaceCluster {
-    cluster: WorkspaceCluster
+export interface WorkspaceClusterInfo {
+    cluster: WorkspaceClusterWoTLS
 }
+
+// function(matchingClusterInfo: WorkspaceClusterInfo) {
+//     let clusterAnnotations = matchingClusterInfo.cluster.annotations;
+//     if (clusterAnnotations) {
+//         let podUrl = clusterAnnotations.podLogsUrl;
+//         let nodeUrl = clusterAnnotations.nodeUrl
+//         let podMetricsUrl = clusterAnnotations.podMetricsUrl
+//         let nodeMetricsUrl = clusterAnnotations.nodeMetricsUrl
+//     }
+// }
 
 export namespace WorkspaceInfo {
     export function lastActiveISODate(info: WorkspaceInfo): string {

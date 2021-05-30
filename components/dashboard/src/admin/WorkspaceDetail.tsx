@@ -5,16 +5,18 @@
  */
 
 import { User, WorkspaceAndInstance } from "@gitpod/gitpod-protocol";
+import { WorkspaceClusterWoTLS } from "@gitpod/gitpod-protocol/lib/workspace-cluster";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getGitpodService } from "../service/service";
 import { getProject, WorkspaceStatusIndicator } from "../workspaces/WorkspaceEntry";
-import { getAdminLinks } from "./gcp-info";
+import { getAdminLinks, getAdminLinks1 } from "./gcp-info";
 import { Property } from "./UserDetail";
 
-export default function WorkspaceDetail(props: { workspace: WorkspaceAndInstance }) {
+export default function WorkspaceDetail(props: { workspace: WorkspaceAndInstance, workspaceClusters: WorkspaceClusterWoTLS[] }) {
     const [workspace, setWorkspace] = useState(props.workspace);
+    // const [workspaceClusters, setWorkspaceClusters] = useState(props.workspaceClusters);
     const [activity, setActivity] = useState(false);
     const [user, setUser] = useState<User>();
     useEffect(() => {
@@ -52,7 +54,7 @@ export default function WorkspaceDetail(props: { workspace: WorkspaceAndInstance
         }
     }
     const adminLinks = getAdminLinks(workspace);
-
+    const adminLinks1 = getAdminLinks1(workspace, props.workspaceClusters);
     const adminLink = (i: number) => <Property key={'admin-' + i} name={adminLinks[i]?.name || ''}><a className="text-blue-400 dark:text-blue-600 hover:text-blue-600 dark:hover:text-blue-400" href={adminLinks[i]?.url}>{adminLinks[i]?.title || ''}</a></Property>;
     return <>
         <div className="flex">
@@ -60,6 +62,7 @@ export default function WorkspaceDetail(props: { workspace: WorkspaceAndInstance
                 <div className="flex"><h3>{workspace.workspaceId}</h3><span className="my-auto ml-3"><WorkspaceStatusIndicator instance={WorkspaceAndInstance.toInstance(workspace)} /></span></div>
                 <p>{getProject(WorkspaceAndInstance.toWorkspace(workspace))}</p>
             </div>
+            <div>{adminLinks1}</div>
             <button className="secondary ml-3" disabled={activity} onClick={reload}>Reload Data</button>
             <button className="danger ml-3" disabled={activity || workspace.phase === 'stopped'} onClick={stopWorkspace}>Stop Workspace</button>
         </div>

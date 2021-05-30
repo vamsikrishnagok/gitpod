@@ -32,9 +32,14 @@ export function WorkspaceSearch(props: Props) {
     const [searchResult, setSearchResult] = useState<AdminGetListResult<WorkspaceAndInstance>>({ rows: [], total: 0 });
     const [searchTerm, setSearchTerm] = useState('');
     const [searching, setSearching] = useState(false);
-    const [currentWorkspace, setCurrentWorkspaceState] = useState<WorkspaceAndInstance|undefined>(undefined);
-
+    const [currentWorkspace, setCurrentWorkspaceState] = useState<WorkspaceAndInstance | undefined>(undefined);
+    const [workspaceClusters, setWorkspaceClusters] = useState<AdminGetListResult<WorkspaceClusterWoTLS>>()
     useEffect(() => {
+        // get all the workspace clusters first
+        getGitpodService().server.adminGetWorkspaceClusters({}).then(
+            wscs => setWorkspaceClusters(wscs)
+        ).catch(e => console.error(e));
+
         const workspaceId = location.pathname.split('/')[3];
         if (workspaceId) {
             let user = searchResult.rows.find(ws => ws.workspaceId === workspaceId);
@@ -57,11 +62,11 @@ export function WorkspaceSearch(props: Props) {
     }, [props.user]);
 
     if (!user || !user?.rolesOrPermissions?.includes('admin')) {
-        return <Redirect to="/"/>
+        return <Redirect to="/" />
     }
 
     if (currentWorkspace) {
-        return <WorkspaceDetail workspace={currentWorkspace}/>;
+        return <WorkspaceDetail workspace={currentWorkspace} workspaceClusters={workspaceClusters?.rows || []} />;
     }
 
     const search = async () => {
@@ -89,7 +94,7 @@ export function WorkspaceSearch(props: Props) {
                             <path fillRule="evenodd" clipRule="evenodd" d="M6 2a4 4 0 100 8 4 4 0 000-8zM0 6a6 6 0 1110.89 3.477l4.817 4.816a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 010 6z" fill="#A8A29E" />
                         </svg>
                     </div>
-                    <input type="search" placeholder="Search context URLs" onKeyDown={(ke) => ke.key === 'Enter' && search() } onChange={(v) => { setSearchTerm(v.target.value) }} />
+                    <input type="search" placeholder="Search context URLs" onKeyDown={(ke) => ke.key === 'Enter' && search()} onChange={(v) => { setSearchTerm(v.target.value) }} />
                 </div>
                 <button disabled={searching} onClick={search}>Search</button>
             </div>
@@ -110,7 +115,7 @@ function WorkspaceEntry(p: { ws: WorkspaceAndInstance }) {
     return <Link key={'ws-' + p.ws.workspaceId} to={'/admin/workspaces/' + p.ws.workspaceId}>
         <div className="rounded-xl whitespace-nowrap flex py-6 px-6 w-full justify-between hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gitpod-kumquat-light group">
             <div className="pr-3 self-center w-8">
-                <WorkspaceStatusIndicator instance={WorkspaceAndInstance.toInstance(p.ws)}/>
+                <WorkspaceStatusIndicator instance={WorkspaceAndInstance.toInstance(p.ws)} />
             </div>
             <div className="flex flex-col w-5/12 truncate">
                 <div className="font-medium text-gray-800 dark:text-gray-100 truncate hover:text-blue-600 dark:hover:text-blue-400 truncate">{p.ws.workspaceId}</div>

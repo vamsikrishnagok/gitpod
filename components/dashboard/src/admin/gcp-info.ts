@@ -4,13 +4,20 @@
  * See License-AGPL.txt in the project root for license information.
  */
 
-import { WorkspaceAndInstance } from "@gitpod/gitpod-protocol";
+import { WorkspaceAndInstance, WorkspaceClusterInfo } from "@gitpod/gitpod-protocol";
 import { log } from "@gitpod/gitpod-protocol/lib/util/logging";
+import { Annotations } from "@gitpod/gitpod-protocol/lib/workspace-cluster";
 
 export interface Link {
     readonly name: string;
     readonly title: string;
     readonly url: string;
+}
+
+interface K8sSpecificPlaceholdersValues {
+    readonly podName: string;
+    readonly nodeName: string;
+    readonly namespace: string;
 }
 
 export function getAdminLinks(workspace: WorkspaceAndInstance): Link[] {
@@ -28,19 +35,44 @@ export function getAdminLinks(workspace: WorkspaceAndInstance): Link[] {
     return internalGetAdminLinks(gcp, baseDomain, workspace.status.podName, workspace.status.nodeName);
 }
 
+export function getAdminLinks1(workspace: WorkspaceAndInstance, clusters: WorkspaceClusterInfo[]): Link[] {
+    let matchingClusterInfo = clusters.find(cluster => cluster.cluster.name === workspace.region);
+    if (!matchingClusterInfo) {
+        log.warn("no matching cluster found with name " + workspace.region + ", some links might be broken")
+        return [];
+    }
+    let clusterAnnotations = matchingClusterInfo.cluster.annotations;
+    if (!clusterAnnotations) {
+        log.warn("no annotations found in the matching cluster, some links might be broken")
+        return [];
+    }
+    else {
+        let placeHolderValues: K8sSpecificPlaceholdersValues = { podName: workspace.status.podName || "", nodeName: workspace.status.nodeName || "", namespace: workspace.status.namespace }
+        return internalGetAdminLinks1(clusterAnnotations, placeHolderValues)
+    }
+}
+
+function replaceK8sSpecificPlaceholders(templatedString: string, placeholdersValues: K8sSpecificPlaceholdersValues): string {
+    let renderedString = templatedString;
+    renderedString = renderedString.replace("${podName}", placeholdersValues.podName)
+    renderedString = renderedString.replace("${nodeName}", placeholdersValues.nodeName)
+    renderedString = renderedString.replace("${namespace}", placeholdersValues.namespace)
+    return renderedString;
+}
+
 function internalGetAdminLinks(gcpInfo: GcpInfo,
-                            baseDomain: string,
-                            podName?: string,
-                            nodeName?: string): Link[] {
-    const {clusterName, namespace, projectName, region} = gcpInfo;
+    baseDomain: string,
+    podName?: string,
+    nodeName?: string): Link[] {
+    const { clusterName, namespace, projectName, region } = gcpInfo;
     return [
         {
-            name: "GKE Pod",
+            name: "Pod",
             title: `${podName}`,
             url: `https://console.cloud.google.com/kubernetes/pod/${region}/${clusterName}/${namespace}/${podName}/details?project=${projectName}`
         },
         {
-            name: `GKE Node`,
+            name: `Node`,
             title: `${nodeName}`,
             url: `https://console.cloud.google.com/kubernetes/node/${region}/${clusterName}/${nodeName}/summary?project=${projectName}`
         },
@@ -60,6 +92,55 @@ function internalGetAdminLinks(gcpInfo: GcpInfo,
             url: `https://monitoring.${baseDomain}/d/admin-node/admin-node?var-node=${nodeName}`
         },
     ];
+}
+function internalGetAdminLinks1(annotations: Annotations, placeHolderValues: K8sSpecificPlaceholdersValues): Link[] {
+    return [
+        getPodLink(),
+        getNodeLink(),
+        getLogsLink(),
+        getPodMetricsLink(),
+        getNodeMetricsLink(),
+    ];
+
+    function getNodeMetricsLink(): Link {
+        return {
+            name: "Grafana Node",
+            title: "Node Metrics",
+            url: replaceK8sSpecificPlaceholders(annotations.nodeMetricsUrl || "", placeHolderValues)
+        };
+    }
+
+    function getPodMetricsLink(): Link {
+        return {
+            name: "Grafana Workspace",
+            title: "Pod Metrics",
+            url: replaceK8sSpecificPlaceholders(annotations.podMetricsUrl || "", placeHolderValues)
+        };
+    }
+
+    function getLogsLink(): Link {
+        return {
+            name: "Workspace Pod Logs",
+            title: "See Logs",
+            url: replaceK8sSpecificPlaceholders(annotations.podLogsUrl || "", placeHolderValues)
+        };
+    }
+
+    function getNodeLink(): Link {
+        return {
+            name: "Node",
+            title: placeHolderValues.nodeName,
+            url: replaceK8sSpecificPlaceholders(annotations.nodeUrl || "", placeHolderValues)
+        };
+    }
+
+    function getPodLink(): Link {
+        return {
+            name: "Pod",
+            title: placeHolderValues.podName,
+            url: replaceK8sSpecificPlaceholders(annotations.podUrl || "", placeHolderValues)
+        };
+    }
 }
 
 function deriveGcpInfo(ideUrlStr: string, region: string): { gcp: GcpInfo, baseDomain: string } | undefined {

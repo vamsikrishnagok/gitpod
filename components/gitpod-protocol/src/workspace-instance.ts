@@ -58,6 +58,9 @@ export interface WorkspaceInstanceStatus {
     // message is a user-readable message containing information about the workspace
     message?: string;
 
+    // namespace where this instance is running
+    namespace: string
+
     // exposedPorts is the list of currently exposed ports
     exposedPorts?: WorkspaceInstancePort[];
 
