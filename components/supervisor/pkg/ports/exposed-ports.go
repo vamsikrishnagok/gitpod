@@ -117,7 +117,7 @@ func (g *GitpodExposedPorts) Observe(ctx context.Context) (<-chan []ExposedPort,
 				for i, p := range u.Status.ExposedPorts {
 					var globalport = p.TargetPort
 					if globalport == 0 {
-						// Ports exposed through confighuration (e.g. .gitpod.yml) do not have explicit target ports,
+						// Ports exposed through configuration (e.g. .gitpod.yml) do not have explicit target ports,
 						// but rather implicitaly forward to their "port".
 						globalport = p.Port
 					}
