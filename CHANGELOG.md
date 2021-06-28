@@ -4,13 +4,57 @@ All notable changes to this project will be documented in this file.
 
 ## June 2021
 
+- Breaking Change: Make ports configured in `.gitpod.yml` private by default when no value for `visibility` is given (was public). This change is for security reasons. ([#4548](https://github.com/gitpod-io/gitpod/pull/4548), ([#4159](https://github.com/gitpod-io/gitpod/issues/4159))
+- Deprecated Theia ([#4459](https://github.com/gitpod-io/gitpod/issues/4459), [#4539](https://github.com/gitpod-io/gitpod/issues/4539))
+- Deprecated unsupported open modes in `.gitpod.yml` ([#4340](https://github.com/gitpod-io/gitpod/issues/4340))
+- Deprecated `prebuild` task ([#4205](https://github.com/gitpod-io/gitpod/issues/4205))
+- Show a tooltip on remaining hours revealing subscription cycle ([#4223](https://github.com/gitpod-io/gitpod/issues/4223))
+- `gp open` and `gp preview` should wait until IDE is ready ([#4036](https://github.com/gitpod-io/gitpod/issues/4036))
+- Added linting and quickfixes to extension section in `.gitpod.yml`([3308](https://github.com/gitpod-io/gitpod/issues/3308))
+- Update VS Code to version 1.57.1 ([#4528](https://github.com/gitpod-io/gitpod/issues/4528), ([#4403](https://github.com/gitpod-io/gitpod/issues/4403)))
+- Enable sharing of a running workspace in Code IDE ([#2812](https://github.com/gitpod-io/gitpod/issues/2812))
+- Allow to retry auto-exposing ports ([#4565](https://github.com/gitpod-io/gitpod/pull/4565))
+- Terminal typing sometimes out-of-order ([#4505](https://github.com/gitpod-io/gitpod/issues/4504))
+- Minified IDE code ([#2117](https://github.com/gitpod-io/gitpod/issues/2117))
+- Enable installing web extensions ([#3259](https://github.com/gitpod-io/gitpod/issues/3259))
+- Weird font in terminal ([#4130](https://github.com/gitpod-io/gitpod/issues/4130))
+- Can't open empty Bitbucket repository ([#4224](https://github.com/gitpod-io/gitpod/issues/4224))
+- Added more stability to websockets ([#4047](https://github.com/gitpod-io/gitpod/issues/4047))
+- Retry on failed git clone ([#4203](https://github.com/gitpod-io/gitpod/issues/4203))
+- Handle special characters in enviropnment variables ([#4493](https://github.com/gitpod-io/gitpod/issues/4493))
+- “GitHub Actions” extension can not authenticate ([#4418](https://github.com/gitpod-io/gitpod/issues/4418))
+- Enable to debug VS Code extensions ([#3245)(https://github.com/gitpod-io/gitpod/issues/3245))
+- Fixed false warning on invalid Git token scope ([#4062](https://github.com/gitpod-io/gitpod/issues/4062))
+- Fixed wrong upstream branch for issue contexts ([#4366](https://github.com/gitpod-io/gitpod/issues/4366))
+- Allow to load Gitpod setup via URL params ([#3746](https://github.com/gitpod-io/gitpod/issues/3746))
+- Added `/usr/games` to `PATH` ([#4508](https://github.com/gitpod-io/gitpod/issues/4508))
+- Addad a Python/Flask example ([#3685](https://github.com/gitpod-io/gitpod/issues/3685))
 - Add dodo to animals (thanks @a2br!) ([#4589](https://github.com/gitpod-io/gitpod/pull/4589))
-- Implement a new Teams UI in the dashboard (behind a feature flag). ([#4401)](https://github.com/gitpod-io/gitpod/pull/4401), )
-- Breaking Change: Make ports configured in `.gitpod.yml` private by default when no value for `visibility` is given (was public). This change is for security reasons. ([#4548](https://github.com/gitpod-io/gitpod/pull/4548))
+- Implement a new Teams UI in the dashboard (behind a feature flag). ([#4401)](https://github.com/gitpod-io/gitpod/pull/4401))
 - Fix active workspace list in dashboard (show also older pinned workspaces) ([#4523](https://github.com/gitpod-io/gitpod/pull/4523))
 - Adding `ItemsList` component as a more maintainable and consistent way to render a list of workspaces, git integrations, environment variables, etc. ([#4454](https://github.com/gitpod-io/gitpod/pull/4454))
 - Improve backup stability when pods get evicted ([#4405](https://github.com/gitpod-io/gitpod/pull/4405))
-- Fix text color in workspaces list for dark theme ([#4410](https://github.com/gitpod-io/gitpod/pull/4410))
+- Various dashboard improvements ([#4221](https://github.com/gitpod-io/gitpod/issues/4221),
+[#4429](https://github.com/gitpod-io/gitpod/issues/4429),
+[#3701](https://github.com/gitpod-io/gitpod/issues/3701),
+[#4264](https://github.com/gitpod-io/gitpod/issues/4264),
+[#4194](https://github.com/gitpod-io/gitpod/issues/4194),
+[#3664](https://github.com/gitpod-io/gitpod/issues/3664),
+[#3971](https://github.com/gitpod-io/gitpod/issues/3971),
+[#3725](https://github.com/gitpod-io/gitpod/issues/3725),
+[#3651](https://github.com/gitpod-io/gitpod/issues/3651),
+[#3652](https://github.com/gitpod-io/gitpod/issues/3652),
+[#4487](https://github.com/gitpod-io/gitpod/issues/4487),
+[#4066](https://github.com/gitpod-io/gitpod/issues/4066),
+[#4488](https://github.com/gitpod-io/gitpod/issues/4488),
+[#3823](https://github.com/gitpod-io/gitpod/issues/3823),
+[#4275](https://github.com/gitpod-io/gitpod/issues/4275),
+[#3635](https://github.com/gitpod-io/gitpod/issues/3635),
+[#4198](https://github.com/gitpod-io/gitpod/issues/4198),
+[#4363](https://github.com/gitpod-io/gitpod/issues/4363),
+[#3731](https://github.com/gitpod-io/gitpod/issues/3731),
+[#3992](https://github.com/gitpod-io/gitpod/issues/3992),
+[#4410](https://github.com/gitpod-io/gitpod/pull/4410))
 - Better reflect incremental prebuilds in prebuilt workspace logs ([#4293](https://github.com/gitpod-io/gitpod/pull/4293))
 - Removing secondary class from the main CTA button to give proper weight (thanks @jordanhailey!) ([#4288](https://github.com/gitpod-io/gitpod/pull/4288)
 - Modify the "New Git Integration" experience to align with provider terminology (thanks @jordanhailey!) ([#4287](https://github.com/gitpod-io/gitpod/pull/4287)
