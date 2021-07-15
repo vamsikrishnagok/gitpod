@@ -44,6 +44,12 @@ export class DBWorkspaceInstance implements WorkspaceInstance {
         default: '',
         transformer: Transformer.MAP_EMPTY_STR_TO_UNDEFINED
     })
+    stoppingTime?: string;
+
+    @Column({
+        default: '',
+        transformer: Transformer.MAP_EMPTY_STR_TO_UNDEFINED
+    })
     stoppedTime?: string;
 
     @Column()
