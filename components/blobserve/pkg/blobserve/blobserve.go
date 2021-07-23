@@ -233,6 +233,13 @@ func inlineVars(req *http.Request, r io.ReadSeeker, inlineReplacements []InlineR
 
 	for _, replacement := range inlineReplacements {
 		replace := strings.ReplaceAll(strings.ReplaceAll(replacement.Replacement, "${ide}", inlineVars.IDE), "${supervisor}", inlineVars.SupervisorImage)
+		if bytes.Contains(content, []byte(replacement.Search)) {
+			path := ""
+			if req != nil && req.URL != nil {
+				path = req.URL.Path
+			}
+			log.WithField("search", replacement.Search).WithField("path", path).Debug("Found replacement")
+		}
 		content = bytes.ReplaceAll(content, []byte(replacement.Search), []byte(replace))
 	}
 	return bytes.NewReader(content), nil
