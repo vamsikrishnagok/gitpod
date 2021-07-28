@@ -25,7 +25,8 @@ RUN git clone -b http2 https://github.com/aledbf/caddy caddy-fork
 RUN xcaddy build \
   --output /caddy \
   --with github.com/caddyserver/caddy/v2=$PWD/caddy-fork \
-  --with github.com/gitpod-io/gitpod/proxy/plugins=/plugins
+  --with github.com/gitpod-io/gitpod/proxy/plugins=/plugins \
+  --with github.com/corneliusludmann/cdp-cache@8bcbb2a4e5fce7b6ed879ad23b406a463d0393f8
 
 FROM alpine:3.14
 
