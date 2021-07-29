@@ -43,7 +43,7 @@ export async function build(context, version) {
     const werftImg = shell.exec("cat .werft/build.yaml | grep dev-environment").trim().split(": ")[1];
     const devImg = shell.exec("yq r .gitpod.yml image").trim();
     if (werftImg !== devImg) {
-        werft.fail('prep', `Werft job image (${werftImg}) and Gitpod dev image (${devImg}) do not match`);
+        werft.fail('prep', `Werft job image (${werftImg}) and Gitpod dev image (${devImg}) do not  match`);
     }
 
     let buildConfig = context.Annotations || {};
