@@ -9,12 +9,11 @@ import { UserDeletionService } from "../../../src/user/user-deletion-service";
 import { SubscriptionService } from "@gitpod/gitpod-payment-endpoint/lib/accounting/subscription-service";
 import { Plans } from "@gitpod/gitpod-protocol/lib/plans";
 import { ChargebeeService } from "./chargebee-service";
-import { EnvEE } from "../env";
+
 @injectable()
 export class UserDeletionServiceEE extends UserDeletionService {
     @inject(ChargebeeService) protected readonly chargebeeService: ChargebeeService;
     @inject(SubscriptionService) protected readonly subscriptionService: SubscriptionService;
-    @inject(EnvEE) protected readonly env: EnvEE;
 
     async deleteUser(id: string): Promise<void> {
         const user = await this.db.findUserById(id);
@@ -22,7 +21,7 @@ export class UserDeletionServiceEE extends UserDeletionService {
             throw new Error(`No user with id ${id} found!`);
         }
 
-        if (this.env.enablePayment) {
+        if (this.config.enablePayment) {
             const now = new Date().toISOString();
             const subscriptions = await this.subscriptionService.getNotYetCancelledSubscriptions(user, now);
             for (const subscription of subscriptions) {
