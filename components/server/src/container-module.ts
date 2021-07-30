@@ -78,8 +78,10 @@ import { IAnalyticsWriter } from '@gitpod/gitpod-protocol/lib/analytics';
 import { HeadlessLogServiceClient } from '@gitpod/content-service/lib/headless-log_grpc_pb';
 import { ProjectsService } from './projects/projects-service';
 import { Config, ConfigFile } from './config';
+import { Env } from './env';
 
 export const productionContainerModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+    bind(Env).toSelf().inSingletonScope();
     bind(Config).toConstantValue(ConfigFile.fromFile());
 
     bind(UserService).toSelf().inSingletonScope();
