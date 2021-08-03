@@ -26,7 +26,7 @@ build(context, version)
         }
     });
 
-// Werft phases
+// Werft phases 
 const phases = {
     TRIGGER_INTEGRATION_TESTS: 'trigger integration tests',
     REGISTER_K3S_WS_CLUSTER: "register k3s ws cluster"
