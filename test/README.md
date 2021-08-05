@@ -15,7 +15,7 @@ Such tests are for example:
 - instrumentation: agents that are compiled before/during the test, uploaded to a pod and executed there.
                    They communicate with the test using net/rpc.
 - API access: to all internal APIs, including ws-manager, ws-daemon, image-builder, registry-facade, server
-- DB access to the Gitpod DB
+- DB access to the Gitpod DB.
 
 ## Run
 
