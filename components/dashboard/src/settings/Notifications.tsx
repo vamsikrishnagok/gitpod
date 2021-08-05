@@ -49,13 +49,13 @@ export default function Notifications() {
         <PageWithSubMenu subMenu={settingsMenu} title='Notifications' subtitle='Choose when to be notified.'>
             <h3>Email Notification Preferences</h3>
             <CheckBox
-                title="Account Notifications"
-                desc="Receive emails about changes to your account"
-                checked={isTransactionalMail}
+                title="Account Notifications [required]"
+                desc="Receive essential emails about changes to your account"
+                checked={true}
                 onChange={toggleTransactionalMail} />
             <CheckBox
-                title="Product Notifications"
-                desc="Receive emails about product updates and news"
+                title="Changelog"
+                desc="Be the first to learn about new features and overall product improvements"
                 checked={isMarketingMail}
                 onChange={toggleMarketingMail} />
         </PageWithSubMenu>
