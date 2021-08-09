@@ -77,6 +77,16 @@ export default function NewProject() {
         setRepoSearchFilter("");
     }, [selectedAccount]);
 
+    useEffect(() => {
+        (async () => {
+            const repos = await updateReposInAccounts();
+            const first = repos[0];
+            if (first) {
+                setSelectedAccount(first.account);
+            }
+        })();
+    }, [provider]);
+
     const isGitHub = () => provider === "github.com";
 
     const updateReposInAccounts = async (installationId?: string) => {
@@ -263,6 +273,8 @@ export default function NewProject() {
                     </span>
                     <br/>
                     <button className="mt-6" onClick={() => reconfigure()}>Authorize Provider</button>
+                    <br/>
+                    <button className="mt-6" onClick={() => setShowGitProviders(true)}>Select Git Provider</button>
                 </div>
             </div>
         </div>)
@@ -275,7 +287,7 @@ export default function NewProject() {
         }
 
         return (<>
-            {(loaded && empty) ? renderEmptyState() : (showGitProviders ? (<GitProviders onHostSelected={onGitProviderSeleted} />) : renderRepos())}
+            {(loaded && empty && !showGitProviders) ? renderEmptyState() : (showGitProviders ? (<GitProviders onHostSelected={onGitProviderSeleted} />) : renderRepos())}
         </>)
     };
 
