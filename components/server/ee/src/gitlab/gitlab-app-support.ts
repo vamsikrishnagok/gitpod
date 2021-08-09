@@ -36,7 +36,7 @@ export class GitLabAppSupport {
             const accountAvatarUrl = anyProject.owner?.avatar_url as string;
 
             result.push({
-                name: fullPath,
+                name: project.name,
                 account: fullPath.split("/")[0],
                 cloneUrl,
                 updatedAt,
