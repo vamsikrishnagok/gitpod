@@ -94,6 +94,16 @@ export class WorkspaceManagerBridgeEE extends WorkspaceManagerBridge {
                     type: headlessUpdateType,
                     workspaceID: workspaceId,
                 });
+
+                // todo(at) notify about prebuild updated
+                {
+                    const prebuildInfo = await this.workspaceDB.trace({span}).findPrebuildInfo(prebuild.id);
+                    if (prebuildInfo) {
+                        prebuildInfo.status = prebuild.state; // todo(at) this looks odd, should the status be updated in DB?
+                        this.messagebus.notifyOnPrebuildUpdate({ prebuildInfo, status: prebuild.state });
+                    }
+                }
+
             }
         } catch (e) {
             TraceContext.logError({span}, e);

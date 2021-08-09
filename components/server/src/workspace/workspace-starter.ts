@@ -193,6 +193,19 @@ export class WorkspaceStarter {
                 }
             });
 
+            { // TODO(at) notify about prebuild update
+                if (type === WorkspaceType.PREBUILD) {
+                    const prebuild = await this.workspaceDb.trace({span}).findPrebuildByWorkspaceID(workspace.id);
+                    if (prebuild) {
+                        const prebuildInfo = await this.workspaceDb.trace({span}).findPrebuildInfo(prebuild.id);
+                        if (prebuildInfo) {
+                            // TODO(at) fix status
+                            this.messageBus.notifyOnPrebuildUpdate({ prebuildInfo, status: "queued" });
+                        }
+                    }
+                }
+            }
+
             return { instanceID: instance.id, workspaceURL: resp.url };
         } catch (err) {
             TraceContext.logError({ span }, err);

@@ -13,7 +13,7 @@ import {
 } from './protocol';
 import {
     Team, TeamMemberInfo,
-    TeamMembershipInvite, Project, PrebuildInfo, TeamMemberRole
+    TeamMembershipInvite, Project, PrebuildInfo, TeamMemberRole, PrebuildUpdate
 } from './teams-projects-protocol';
 import { JsonRpcProxy, JsonRpcServer } from './messaging/proxy-factory';
 import { Disposable, CancellationTokenSource } from 'vscode-jsonrpc';
@@ -33,6 +33,8 @@ import { RemoteTrackMessage } from './analytics';
 export interface GitpodClient {
     onInstanceUpdate(instance: WorkspaceInstance): void;
     onWorkspaceImageBuildLogs: WorkspaceImageBuild.LogCallback;
+
+    onPrebuildUpdate(update: PrebuildUpdate): void;
 
     onCreditAlert(creditAlert: CreditAlert): void;
 
@@ -369,6 +371,18 @@ export class GitpodCompositeClient<Client extends GitpodClient> implements Gitpo
             if (client.onInstanceUpdate) {
                 try {
                     client.onInstanceUpdate(instance);
+                } catch (error) {
+                    console.error(error)
+                }
+            }
+        }
+    }
+
+    onPrebuildUpdate(update: PrebuildUpdate): void {
+        for (const client of this.clients) {
+            if (client.onPrebuildUpdate) {
+                try {
+                    client.onPrebuildUpdate(update);
                 } catch (error) {
                     console.error(error)
                 }

@@ -15,11 +15,14 @@ import { Feature } from '@gitpod/licensor/lib/api';
 import { ResponseError } from 'vscode-jsonrpc';
 import { ErrorCodes } from '@gitpod/gitpod-protocol/lib/messaging/error';
 import { generateWorkspaceID } from '@gitpod/gitpod-protocol/lib/util/generate-workspace-id';
+import { HostContextProvider } from '../../../src/auth/host-context-provider';
+import { parseRepoUrl } from '../../../src/repohost';
 
 @injectable()
 export class WorkspaceFactoryEE extends WorkspaceFactory {
 
     @inject(LicenseEvaluator) protected readonly licenseEvaluator: LicenseEvaluator;
+    @inject(HostContextProvider) protected readonly hostContextProvider: HostContextProvider;
 
     protected requireEELicense(feature: Feature) {
         if (!this.licenseEvaluator.isEnabled(feature)) {
@@ -126,6 +129,47 @@ export class WorkspaceFactoryEE extends WorkspaceFactory {
                 projectId: project?.id,
                 branch
             });
+
+
+            { // TODO(at) store prebuild info
+                if (project) {
+                    const { userId, teamId, name: projectName, id: projectId } = project;
+                    const prebuild = pws;
+                    const parsedUrl = parseRepoUrl(project.cloneUrl);
+                    if (parsedUrl) {
+                        const { owner, repo, host } = parsedUrl;
+                        const repositoryProvider = this.hostContextProvider.get(host)?.services?.repositoryProvider;
+                        if (repositoryProvider) {
+                            const commit = await repositoryProvider.getCommitInfo(user, owner, repo, prebuild.commit);
+                            if (commit) {
+                                await this.db.trace({span}).storePrebuildInfo({
+                                    id: prebuild.id,
+                                    status: prebuild.state,
+                                    buildWorkspaceId: prebuild.buildWorkspaceId,
+                                    teamId,
+                                    userId,
+                                    projectName,
+                                    projectId,
+                                    startedAt: prebuild.creationTime,
+                                    startedBy: "", // TODO
+                                    startedByAvatar: "", // TODO
+                                    cloneUrl: prebuild.cloneURL,
+                                    branch: prebuild.branch || "unknown",
+                                    branchPrebuildNumber: "42", // TODO
+                                    changeAuthor: commit.author,
+                                    changeAuthorAvatar: commit.authorAvatarUrl,
+                                    changeDate: commit.authorDate || "",
+                                    changeHash: commit.sha,
+                                    changeTitle: commit.commitMessage,
+                                    // changePR
+                                    // changeUrl
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
 
             log.debug({ userId: user.id, workspaceId: ws.id }, `Registered workspace prebuild: ${pws.id} for ${commitContext.repository.cloneUrl}:${commitContext.revision}`);
 

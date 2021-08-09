@@ -24,7 +24,6 @@ export default function () {
     const projectName = match?.params?.resource;
     const team = getCurrentTeam(location, teams);
 
-    // @ts-ignore
     const [project, setProject] = useState<Project | undefined>();
     const [defaultBranch, setDefaultBranch] = useState<string | undefined>();
 
@@ -32,6 +31,34 @@ export default function () {
     const [statusFilter, setStatusFilter] = useState<PrebuiltWorkspaceState | undefined>();
 
     const [prebuilds, setPrebuilds] = useState<PrebuildInfo[]>([]);
+
+    useEffect(() => {
+        if (!project) {
+            return;
+        }
+        const registration = getGitpodService().registerClient({
+            onPrebuildUpdate: (update) => {
+
+                if (!project) {
+                    return;
+                }
+                if (update.prebuildInfo.projectId === project.id) {
+                    // TODO(at) create a proper model to update the state
+                    setPrebuilds((prev) => {
+                        const existingPrebuild = prev.find(p => p.id);
+                        if (existingPrebuild) {
+                            existingPrebuild.status = update.status;
+                            return [...prev];
+                        }
+                        return [update.prebuildInfo, ...prev];
+                    })
+                }
+            }
+        })
+        return () => {
+            registration.dispose();
+        }
+    }, [ project ]);
 
     useEffect(() => {
         if (!teams) {
@@ -42,20 +69,22 @@ export default function () {
                 ? await getGitpodService().server.getTeamProjects(team.id)
                 : await getGitpodService().server.getUserProjects());
 
-            const project = projectName && projects.find(p => p.name === projectName);
-            if (project) {
-                setProject(project);
+            const newProject = projectName && projects.find(p => p.name === projectName);
+            if (newProject) {
+                setProject(newProject);
 
-                const prebuilds = await getGitpodService().server.findPrebuilds({ projectId: project.id });
+                const prebuilds = await getGitpodService().server.findPrebuilds({ projectId: newProject.id });
                 setPrebuilds(prebuilds);
 
-                const details = await getGitpodService().server.getProjectOverview(project.id);
+                const details = await getGitpodService().server.getProjectOverview(newProject.id);
                 if (details?.branches) {
                     setDefaultBranch(details.branches.find(b => b.isDefault)?.name);
                 }
             }
         })();
     }, [ teams, team ]);
+
+
 
     const prebuildContextMenu = (p: PrebuildInfo) => {
         const running = p.status === "building";
@@ -102,8 +131,6 @@ export default function () {
         return true;
     }
 
-    const filteredPrebuilds = prebuilds.filter(filter);
-
     const openPrebuild = (pb: PrebuildInfo) => {
         history.push(`/${!!team ? team.slug : 'projects'}/${projectName}/${pb.id}`);
     }
@@ -147,7 +174,7 @@ export default function () {
                         <ItemFieldContextMenu />
                     </ItemField>
                 </Item>
-                {filteredPrebuilds.map((p: PrebuildInfo) => <Item className="grid grid-cols-3">
+                {prebuilds.filter(filter).map((p: PrebuildInfo) => <Item key={`prebuild-${p.id}`} className="grid grid-cols-3">
                     <ItemField className="flex items-center">
                         <div className="cursor-pointer" onClick={() => openPrebuild(p)}>
                             <div className="text-base text-gray-900 dark:text-gray-50 font-medium uppercase mb-1">

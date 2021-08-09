@@ -105,7 +105,7 @@ export class ProjectsService {
         if (!prebuild) {
             return undefined;
         }
-        return await this.toPrebuildInfo(project, prebuild, branch.commit);
+        return this.toPrebuildInfo(project, prebuild, branch.commit);
     }
 
     async findPrebuilds(user: User, params: FindPrebuildsParams): Promise<PrebuildInfo[]> {
@@ -142,7 +142,7 @@ export class ProjectsService {
             try {
                 const commit = await repositoryProvider.getCommitInfo(user, owner, repo, prebuild.commit);
                 if (commit) {
-                    result.push(await this.toPrebuildInfo(project, prebuild, commit));
+                    result.push(this.toPrebuildInfo(project, prebuild, commit));
                 }
             } catch (error) {
                 log.debug(`Could not fetch commit info.`, error, { owner, repo, prebuildCommit: prebuild.commit });
@@ -151,20 +151,23 @@ export class ProjectsService {
         return result;
     }
 
-    protected async toPrebuildInfo(project: Project, prebuild: PrebuiltWorkspace, commit: CommitInfo): Promise<PrebuildInfo> {
-        const { teamId, name: projectName } = project;
+    protected toPrebuildInfo(project: Project, prebuild: PrebuiltWorkspace, commit: CommitInfo): PrebuildInfo {
+        const { userId, teamId, name: projectName, id: projectId } = project;
 
         return {
             id: prebuild.id,
+            status: prebuild.state,
             buildWorkspaceId: prebuild.buildWorkspaceId,
+            teamId,
+            userId,
+            projectName,
+            projectId,
             startedAt: prebuild.creationTime,
             startedBy: "", // TODO
             startedByAvatar: "", // TODO
-            teamId: teamId || "", // TODO
-            projectName,
-            branch: prebuild.branch || "unknown",
             cloneUrl: prebuild.cloneURL,
-            status: prebuild.state,
+            branch: prebuild.branch || "unknown",
+            branchPrebuildNumber: "42", // TODO
             changeAuthor: commit.author,
             changeAuthorAvatar: commit.authorAvatarUrl,
             changeDate: commit.authorDate || "",
@@ -172,7 +175,6 @@ export class ProjectsService {
             changeTitle: commit.commitMessage,
             // changePR
             // changeUrl
-            branchPrebuildNumber: "42"
         };
     }
 
