@@ -253,7 +253,7 @@ export interface ProviderRepository {
     installationId?: number;
     installationUpdatedAt?: string;
 
-    inUse?: boolean;
+    inUse?: { userId: string, userName: string };
 }
 
 export const WorkspaceTimeoutValues = ["30m", "60m", "180m"] as const;
