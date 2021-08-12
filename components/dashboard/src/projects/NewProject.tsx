@@ -106,10 +106,23 @@ export default function NewProject() {
     }
 
     const reconfigure = () => {
+        //track project button clicked 'add_organisation'
+        trackProjectButton({
+            button:'add_organisation',
+            button_context:undefined
+        });
         openReconfigureWindow({
             account: selectedAccount,
             onSuccess: (p: { installationId: string, setupAction?: string }) => {
                 updateReposInAccounts(p.installationId);
+                //track 'organisation_authorised'
+                getGitpodService().server.trackEvent({
+                    event:"organisation_authorised",
+                    properties:{
+                        installation_id:p.installationId,
+                        setup_action:p.setupAction
+                    }
+                });
             }
         });
     }
@@ -127,6 +140,13 @@ export default function NewProject() {
         } catch (error) {
             console.log(error);
         }
+    }
+
+    const trackProjectButton = (props:{button:string,button_context:string | undefined}) => {
+        getGitpodService().server.trackEvent({
+            event:"project_button_clicked",
+            properties:props
+        });
     }
 
     const createProject = async (teamOrUser: Team | User, selectedRepo: string) => {
@@ -223,7 +243,15 @@ export default function NewProject() {
                                     <div className="flex justify-end">
                                         <div className="h-full my-auto flex self-center opacity-0 group-hover:opacity-100">
                                             {!r.inUse ? (
-                                                <button className="primary" onClick={() => setSelectedRepo(r.name)}>Select</button>
+                                                <button className="primary" onClick={() => {
+                                                    // track project button clicked 'add_organisation'
+                                                    trackProjectButton({
+                                                        button:'select_project',
+                                                        button_context:r.name
+                                                    });
+                                                    setSelectedRepo(r.name);
+                                                }
+                                            }>Select</button>
                                             ) : (
                                                 <p className="my-auto">already taken</p>
                                             )}
