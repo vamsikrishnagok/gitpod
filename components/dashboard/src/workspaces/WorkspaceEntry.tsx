@@ -74,14 +74,18 @@ export function WorkspaceEntry({ desc, model, isAdmin, stopWorkspace }: Props) {
                     model.togglePinned(ws.id);
                 }
             },
-            {
+        );
+
+        // Workspaces can only be deleted if not preparing
+        if (state !== 'preparing') {
+            menuEntries.push({
                 title: 'Delete',
                 customFontStyle: 'text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300',
                 onClick: () => {
                     setModalVisible(true);
                 }
-            }
-        );
+            });
+        }
     }
     const project = getProject(ws);
 
