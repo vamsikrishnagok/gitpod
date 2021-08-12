@@ -12,6 +12,7 @@ import TabMenuItem from "../components/TabMenuItem";
 import { getGitpodService } from "../service/service";
 import { getCurrentTeam, TeamsContext } from "../teams/teams-context";
 import AlertBox from "../components/AlertBox";
+import Header from "../components/Header";
 
 const MonacoEditor = React.lazy(() => import('../components/MonacoEditor'));
 
@@ -112,20 +113,19 @@ export default function () {
 
   useEffect(() => { document.title = 'Configure Project — Gitpod' }, []);
 
-  return <div className="flex flex-col mt-24 mx-auto items-center">
-    <h1>Configure Project</h1>
-    <p className="text-gray-500 text-center text-base">Fully-automate your project's dev setup. <a className="gp-link" href="https://www.gitpod.io/docs/references/gitpod-yml">Learn more</a></p>
-    <div className="mt-4 w-full flex">
-      <div className="flex-1 m-8">
-        {editorError && <AlertBox className="mb-2">{editorError}</AlertBox>}
+  return <>
+    <Header title="Configuration" subtitle="View and edit project configuration." />
+    <div className="mt-8 w-full flex space-x-4">
+      <div className="w-96">
         {!isEditorDisabled && <select className="w-full" defaultValue="" onChange={e => setGitpodYml(e.target.value)}>
           <option value="" disabled={true}>…</option>
           {Object.entries(TASKS).map(([ name, value ]) => <option value={value}>{name}</option>)}
         </select>}
-        {!!dockerfile && <div className="flex justify-center border-b border-gray-200 dark:border-gray-800">
+        <div className="flex bg-gray-50 rounded-t-xl border-b border-gray-200 dark:border-gray-800 px-6 pt-3">
           <TabMenuItem name=".gitpod.yml" selected={selectedEditor === '.gitpod.yml'} onClick={() => setSelectedEditor('.gitpod.yml')} />
-          <TabMenuItem name=".gitpod.Dockerfile" selected={selectedEditor === '.gitpod.Dockerfile'} onClick={() => setSelectedEditor('.gitpod.Dockerfile')} />
-        </div>}
+          {!!dockerfile && <TabMenuItem name=".gitpod.Dockerfile" selected={selectedEditor === '.gitpod.Dockerfile'} onClick={() => setSelectedEditor('.gitpod.Dockerfile')} />}
+        </div>
+        {editorError && <AlertBox className="mb-2">{editorError}</AlertBox>}
         <Suspense fallback={<div />}>
           {selectedEditor === '.gitpod.yml' &&
             <MonacoEditor classes="mt-4 w-full h-64" disabled={isEditorDisabled} language="yaml" value={gitpodYml} onChange={setGitpodYml} />}
@@ -137,9 +137,8 @@ export default function () {
         </div>
       </div>
       <div className="flex-1 m-8">
-        <h3 className="text-center">Output</h3>
         {!!workspaceCreationResult && <PrebuildLogs workspaceId={workspaceCreationResult.createdWorkspaceId} />}
       </div>
     </div>
-  </div>;
+  </>;
 }
