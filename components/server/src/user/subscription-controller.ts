@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2021 Gitpod GmbH. All rights reserved.
+ * Licensed under the GNU Affero General Public License (AGPL).
+ * See License-AGPL.txt in the project root for license information.
+ */
+
 import { injectable } from "inversify";
 import * as express from 'express';
 
@@ -8,6 +14,7 @@ export class SubscriptionController {
 
         router.get("/unsubscribe", async (req: express.Request, res: express.Response) => {
 
+            console.log("Subscription controller");
             // if emailAddress exists in User database:
             //      1. update the database
             //      2. send track event
