@@ -14,7 +14,7 @@ export class SubscriptionController {
 
         router.get("/unsubscribe", async (req: express.Request, res: express.Response) => {
 
-            console.log("Subscription controller");
+            res.send("Subscription controller");
             // if emailAddress exists in User database:
             //      1. update the database
             //      2. send track event
