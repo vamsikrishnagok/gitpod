@@ -108,8 +108,9 @@ export default function NewProject() {
     const reconfigure = () => {
         //track project button clicked 'add_organisation'
         trackProjectButton({
-            button:'add_organisation',
-            button_context:undefined
+            button: 'add_organisation',
+            button_context: undefined,
+            button_foreign_id: undefined
         });
         openReconfigureWindow({
             account: selectedAccount,
@@ -117,10 +118,10 @@ export default function NewProject() {
                 updateReposInAccounts(p.installationId);
                 //track 'organisation_authorised'
                 getGitpodService().server.trackEvent({
-                    event:"organisation_authorised",
-                    properties:{
-                        installation_id:p.installationId,
-                        setup_action:p.setupAction
+                    event: "organisation_authorised",
+                    properties: {
+                        installation_id: p.installationId,
+                        setup_action: p.setupAction
                     }
                 });
             }
@@ -142,10 +143,10 @@ export default function NewProject() {
         }
     }
 
-    const trackProjectButton = (props:{button:string,button_context:string | undefined}) => {
+    const trackProjectButton = (props: { button: string, button_context: string | undefined, button_foreign_id: string | undefined }) => {
         getGitpodService().server.trackEvent({
-            event:"project_button_clicked",
-            properties:props
+            event: "project_button_clicked",
+            properties: props
         });
     }
 
@@ -164,7 +165,19 @@ export default function NewProject() {
             ...(User.is(teamOrUser) ? { userId: teamOrUser.id } : { teamId: teamOrUser.id }),
             appInstallationId: String(repo.installationId),
         });
-
+        //track project creation
+        getGitpodService().server.trackEvent({
+            event: "project_created",
+            properties: {
+                "name": repo.name,
+                "clone_url": repo.cloneUrl,
+                "account": repo.account,
+                "provider": provider,
+                "owner_type": User.is(teamOrUser) ? "user" : "team",
+                "owner_id": teamOrUser.id,
+                "app_installation_id": repo.installationId
+            }
+        });
         history.push(`/${User.is(teamOrUser) ? 'projects' : teamOrUser.slug}/${repo.name}/configure`);
     }
 
@@ -186,7 +199,7 @@ export default function NewProject() {
             <span className={"pl-2 text-gray-600 dark:text-gray-100 text-base " + (addClasses || "")}>{label}</span>
         </div>)
         const result: ContextMenuEntry[] = [];
-        for (const [ account, props ] of accounts.entries()) {
+        for (const [account, props] of accounts.entries()) {
             result.push({
                 title: account,
                 customContent: renderItemContent(account, props.avatarUrl, "font-semibold"),
@@ -240,23 +253,24 @@ export default function NewProject() {
                                     <div className="text-base text-gray-900 dark:text-gray-50 font-medium rounded-xl whitespace-nowrap">{toSimpleName(r.name)}</div>
                                     <p>Updated {moment(r.updatedAt).fromNow()}</p>
                                 </div>
-                                    <div className="flex justify-end">
-                                        <div className="h-full my-auto flex self-center opacity-0 group-hover:opacity-100">
-                                            {!r.inUse ? (
-                                                <button className="primary" onClick={() => {
-                                                    // track project button clicked 'add_organisation'
-                                                    trackProjectButton({
-                                                        button:'select_project',
-                                                        button_context:r.name
-                                                    });
-                                                    setSelectedRepo(r.name);
-                                                }
+                                <div className="flex justify-end">
+                                    <div className="h-full my-auto flex self-center opacity-0 group-hover:opacity-100">
+                                        {!r.inUse ? (
+                                            <button className="primary" onClick={() => {
+                                                // track project button clicked 'add_organisation'
+                                                trackProjectButton({
+                                                    button: 'select_project',
+                                                    button_context: r.name,
+                                                    button_foreign_id: undefined
+                                                });
+                                                setSelectedRepo(r.name);
+                                            }
                                             }>Select</button>
-                                            ) : (
-                                                <p className="my-auto">already taken</p>
-                                            )}
-                                        </div>
+                                        ) : (
+                                            <p className="my-auto">already taken</p>
+                                        )}
                                     </div>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -289,7 +303,7 @@ export default function NewProject() {
                     <span className="dark:text-gray-500">
                         Authorize GitHub (github.com) or select a different account.
                     </span>
-                    <br/>
+                    <br />
                     <button className="mt-6" onClick={() => reconfigure()}>Authorize Provider</button>
                 </div>
             </div>
@@ -319,7 +333,16 @@ export default function NewProject() {
                     <div className="w-8/12 m-auto overflow-ellipsis truncate">{userFullName}</div>
                     <div className="w-4/12 flex justify-end">
                         <div className="flex self-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md cursor-pointer opacity-0 group-hover:opacity-100">
-                            <button className="primary py-1" onClick={() => setSelectedTeamOrUser(user)}>Select</button>
+                            <button className="primary py-1" onClick={() => {
+                                // track project button clicked 'select_team'
+                                trackProjectButton({
+                                    button: 'select_team',
+                                    button_context: 'user',
+                                    button_foreign_id: user?.id
+                                });
+                                setSelectedTeamOrUser(user)
+                            }
+                            }>Select</button>
                         </div>
                     </div>
                 </div>
@@ -328,7 +351,16 @@ export default function NewProject() {
                         <div className="w-8/12 m-auto overflow-ellipsis truncate">{t.name}</div>
                         <div className="w-4/12 flex justify-end">
                             <div className="flex self-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md cursor-pointer opacity-0 group-hover:opacity-100">
-                                <button className="primary py-1" onClick={() => setSelectedTeamOrUser(t)}>Select</button>
+                                <button className="primary py-1" onClick={() => {
+                                    // track project button clicked 'select_team'
+                                    trackProjectButton({
+                                        button: 'select_team',
+                                        button_context: 'team',
+                                        button_foreign_id: t.id
+                                    });
+                                    setSelectedTeamOrUser(t)
+                                }
+                                }>Select</button>
                             </div>
                         </div>
                     </div>
@@ -427,6 +459,16 @@ function NewTeam(props: {
         }
         try {
             const team = await getGitpodService().server.createTeam(teamName);
+            //track team creation
+            getGitpodService().server.trackEvent({
+                event: "team_created",
+                properties: {
+                    id: team.id,
+                    name: team.name,
+                    slug: team.slug,
+                    created_at: team.creationTime
+                }
+            });
             setTeams(await getGitpodService().server.getTeams());
             props.onSuccess(team);
         } catch (error) {
@@ -444,7 +486,18 @@ function NewTeam(props: {
         <div className={props.className}>
             <div className="flex flex-row space-x-2">
                 <input type="text" className="py-1 flex-grow w-36" name="new-team-inline" value={teamName} placeholder="team-name" onChange={(e) => onTeamNameChanged(e.target.value)} />
-                <button key={`new-team-inline-create`} disabled={!teamName} onClick={() => onNewTeam()}>Create Team</button>
+                <button key={`new-team-inline-create`} disabled={!teamName} onClick={() => {
+                    //track project button clicked 'create_team'
+                    getGitpodService().server.trackEvent({
+                        event: "project_button_clicked",
+                        properties: {
+                            button: "create_team",
+                            button_context: teamName
+                        }
+                    });
+                    onNewTeam()
+                }
+                }>Create Team</button>
             </div>
             {error && <p className="text-gitpod-red">{error}</p>}
         </div>
